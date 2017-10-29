@@ -25,13 +25,15 @@ public class SpegParser {
      */
     public PegNode peg() {
 
+        return parsingBody();
+/*
         return rdParser.sequence(
                 rdParser.zeroOrMore(spacesBreaks()),
                 parsingHeader(),
                 rdParser.oneOrMore(spacesBreaks()),
                 parsingBody(),
                 rdParser.parseEndOfFile()
-        );
+        );*/
     }
 
     /**
@@ -88,11 +90,14 @@ public class SpegParser {
      */
     private PegNode parsingRule() {
         return rdParser.sequence(
-                rdParser.zeroOrMore(rdParser.parseRegexp("[a-zA-Z0-9_]")),
-                rdParser.zeroOrMore(spacesBreaks()),
+
+                rdParser.zeroOrMore(rdParser.parseString("URL")),
+                //rdParser.zeroOrMore(rdParser.parseRegexp("[a-zA-Z0-9_]")),
+                //rdParser.zeroOrMore(spacesBreaks()),
                 rdParser.parseString("->"),
-                rdParser.zeroOrMore(spacesBreaks()),
-                rdParser.zeroOrMore(rdParser.parseRegexp("[a-zA-Z0-9_]"))
+                //rdParser.zeroOrMore(spacesBreaks()),
+                //rdParser.zeroOrMore(rdParser.parseRegexp("[a-zA-Z0-9_]"))
+                rdParser.zeroOrMore(rdParser.parseString("KARL"))
 
         );
     }

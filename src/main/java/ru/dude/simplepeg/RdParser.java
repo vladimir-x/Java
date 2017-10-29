@@ -28,7 +28,7 @@ public class RdParser {
         return new PegNode() {
             @Override
             public boolean exec() throws ParseInputException {
-
+                clearNode();
                 int endPos = state.getPosition() + str.length();
                 if (endPos <= state.getTextData().length() &&
                         state.getTextData().substring(state.getPosition(),endPos).equals(str)) {
@@ -50,7 +50,7 @@ public class RdParser {
         return new PegNode() {
             @Override
             public boolean exec() throws ParseInputException {
-
+                clearNode();
                 Pattern pattern = Pattern.compile(regexp);
                 Matcher matcher = pattern.matcher(state.getTextData());
                 if (matcher.find(state.getPosition()) && state.getPosition() == matcher.start()) {
@@ -74,11 +74,11 @@ public class RdParser {
 
             @Override
             public boolean exec() throws ParseInputException {
+                clearNode();
                 setType(SpegTypes.SEQUENCE);
-
-                for (PegNode pegNode : nodes) {
-                    if (pegNode.exec()) {
-                        appendChild(pegNode);
+                for (PegNode node : nodes) {
+                    if (node.exec() && node.isResExist()){
+                        appendChild(node);
                     } else {
                         return false;
                     }
@@ -94,11 +94,12 @@ public class RdParser {
 
             @Override
             public boolean exec() throws ParseInputException {
+                clearNode();
                 setType(SpegTypes.ORDERED_CHOICE);
 
-                for (PegNode pegNode : nodes) {
-                    if (pegNode.exec()) {
-                        appendChild(pegNode);
+                for (PegNode node : nodes) {
+                    if (node.exec() && node.isResExist()) {
+                        appendChild(node);
                         return true;
                     }
                 }
@@ -108,26 +109,36 @@ public class RdParser {
 
     }
 
-    public PegNode oneOrMore(PegNode node) {
-        return oneOrZeroOrMore(false, node);
-
-    }
-
-    public PegNode zeroOrMore(PegNode node) {
-        return oneOrZeroOrMore(true, node);
-
-    }
-
-    private PegNode oneOrZeroOrMore(final boolean canZero, final PegNode node) {
+    public PegNode oneOrMore(final PegNode node) {
         return new PegNode() {
 
             @Override
             public boolean exec() throws ParseInputException {
-                setType(canZero ? SpegTypes.ZERO_OR_MORE : SpegTypes.ONE_OR_MORE);
-                while (node.exec()) {
-                    appendChild(node.copyTruncate());
+                clearNode();
+                setType(SpegTypes.ONE_OR_MORE);
+                while (node.exec() && node.isResExist()) {
+                    PegNode truncateNode = node.copyTruncate();
+                    appendChild(truncateNode);
                 }
-                return canZero || getChildrens().size() > 0;
+                return getChildrens().size() > 0;
+            }
+        };
+    }
+
+    public PegNode zeroOrMore(final PegNode node) {
+        return new PegNode() {
+
+            @Override
+            public boolean exec() throws ParseInputException {
+                clearNode();
+                setType(SpegTypes.ZERO_OR_MORE);
+                while (node.exec() && node.isResExist()) {
+                    PegNode truncateNode = node.copyTruncate();
+                    appendChild(truncateNode);
+
+                }
+                setResExist(getChildrens().size()>0);
+                return true;
             }
         };
 
@@ -139,6 +150,7 @@ public class RdParser {
             @Override
             public boolean exec() throws ParseInputException {
 
+                clearNode();
                 if (state.getPosition()>=state.getTextData().length()){
                     setType(SpegTypes.END_OF_FILE);
                     setStartPosition(state.getPosition());

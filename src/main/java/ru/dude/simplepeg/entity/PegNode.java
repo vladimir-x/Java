@@ -17,6 +17,8 @@ public abstract class PegNode implements Executable {
     Integer startPosition;
     Integer endPosition;
 
+    boolean resExist = true;
+
     List<PegNode> childrens = new ArrayList<>();
 
     protected void appendChild(PegNode child) {
@@ -111,6 +113,20 @@ public abstract class PegNode implements Executable {
         this.childrens = childrens;
     }
 
+    public boolean isResExist() {
+        return resExist;
+    }
+
+    public void setResExist(boolean resExist) {
+        this.resExist = resExist;
+    }
+
+    public void clearNode(){
+        this.match = new StringBuilder();
+        this.startPosition = null;
+        this.endPosition = null;
+        this.childrens = new ArrayList<>();
+    }
 
     public PegNode copyTruncate(){
         PegNode copy = new PegNode() {
@@ -126,10 +142,7 @@ public abstract class PegNode implements Executable {
         copy.endPosition = this.endPosition;
         copy.setChildrens(this.childrens);
 
-        this.match = new StringBuilder();
-        this.startPosition = null;
-        this.endPosition = null;
-        this.childrens = new ArrayList<>();
+        clearNode();
         return copy;
     }
 }

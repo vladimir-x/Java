@@ -22,6 +22,8 @@ public class Starter {
         State state = new State();
         state.loadByStream(new FileInputStream(f));
 
+        System.out.println(state.getTextData());
+
         SpegParser spegParser = new SpegParser(state);
         PegNode res = spegParser.peg();
         res.exec();
