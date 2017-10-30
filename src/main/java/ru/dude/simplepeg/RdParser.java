@@ -1,6 +1,7 @@
 package ru.dude.simplepeg;
 
 import ru.dude.simplepeg.entity.PegNode;
+import ru.dude.simplepeg.entity.ResultType;
 import ru.dude.simplepeg.entity.SpegTypes;
 import ru.dude.simplepeg.entity.State;
 
@@ -23,143 +24,188 @@ public class RdParser {
         this.state = state;
     }
 
-    public PegNode parseString(final String str) {
+    public Executable parseString(final String str) {
 
-        return new PegNode() {
+        return new Executable() {
             @Override
-            public boolean exec() throws ParseInputException {
-                clearNode();
+            public PegNode exec(){
+                PegNode res = new PegNode();
+                res.setType(SpegTypes.STRING);
+
                 int endPos = state.getPosition() + str.length();
                 if (endPos <= state.getTextData().length() &&
                         state.getTextData().substring(state.getPosition(),endPos).equals(str)) {
-                    setType(SpegTypes.STRING);
-                    addMatch(str);
-                    setStartPosition(state.getPosition());
-                    setEndPosition(state.appendPosition(str.length()));
-                    return true;
+
+                    res.addMatch(str);
+                    res.setStartPosition(state.getPosition());
+                    res.setEndPosition(state.appendPosition(str.length()));
+                    res.setResultType(ResultType.OK);
                 } else {
-                    System.err.println(" parseString " + str + " lastPos = " + state.getPosition());
-                    return false;
-                    //throw new ParseInputException(" parseString " + str + " lastPos = " + state.getPosition());
+                    res.setResultType(ResultType.ERROR);
+                    res.setError(" parseString " + str + " lastPos = " + state.getPosition() + " unexpected " + state.atPos());
                 }
+                return res;
             }
         };
     }
 
-    public PegNode parseRegexp(final String regexp) {
-        return new PegNode() {
+    public Executable parseRegexp(final String regexp) {
+        return new Executable() {
             @Override
-            public boolean exec() throws ParseInputException {
-                clearNode();
+            public PegNode exec(){
+
+                PegNode res = new PegNode();
+                res.setType(SpegTypes.REGEXP);
+
                 Pattern pattern = Pattern.compile(regexp);
                 Matcher matcher = pattern.matcher(state.getTextData());
                 if (matcher.find(state.getPosition()) && state.getPosition() == matcher.start()) {
                     //нашли и у места , где каретка
                     String founded = matcher.group();
-                    setType(SpegTypes.REGEXP);
-                    addMatch(founded);
-                    setStartPosition(matcher.start());
-                    setEndPosition(state.appendPosition(founded.length()));
-                    return true;
+
+                    res.addMatch(founded);
+                    res.setStartPosition(matcher.start());
+                    res.setEndPosition(state.appendPosition(founded.length()));
+                    res.setResultType(ResultType.OK);
                 } else {
-                    System.err.println(" parseRegexp " + regexp + " lastPos = " + state.getPosition());
-                    return false;
+                    res.setResultType(ResultType.ERROR);
+                    res.setError(" parseRegexp " + regexp + " lastPos = " + state.getPosition() + " unexpected " + state.atPos());
                 }
+                return res;
             }
         };
     }
 
-    public PegNode sequence(final PegNode... nodes) {
-        return new PegNode() {
+    public Executable sequence(final Executable... execs) {
+        return new Executable() {
 
             @Override
-            public boolean exec() throws ParseInputException {
-                clearNode();
-                setType(SpegTypes.SEQUENCE);
-                for (PegNode node : nodes) {
-                    if (node.exec() && node.isResExist()){
-                        appendChild(node);
-                    } else {
-                        return false;
+            public PegNode exec(){
+                PegNode res = new PegNode();
+                res.setType(SpegTypes.SEQUENCE);
+
+                for (Executable exec : execs) {
+                    PegNode pegNode = exec.exec();
+
+                    switch (pegNode.getResultType()){
+                        case OK:
+                            res.appendChild(pegNode);
+                            res.setResultType(ResultType.OK);
+                            break;
+                        case ERROR:
+                            res.setResultType(ResultType.ERROR);
+                            res.setError(" sequence " + " lastPos = " + state.getPosition() + " unexpected " + state.atPos());
+                            return res;
                     }
                 }
-                return true;
+
+                if (res.getChildrens().size() == 0){
+                    res.setResultType(ResultType.EMPTY);
+                }
+                return res;
             }
         };
 
     }
 
-    public PegNode orderedChoise(final PegNode... nodes) {
-        return new PegNode() {
+    public Executable orderedChoise(final Executable... execs) {
+        return new Executable() {
 
             @Override
-            public boolean exec() throws ParseInputException {
-                clearNode();
-                setType(SpegTypes.ORDERED_CHOICE);
+            public PegNode exec() {
+                PegNode res = new PegNode();
+                res.setType(SpegTypes.ORDERED_CHOICE);
 
-                for (PegNode node : nodes) {
-                    if (node.exec() && node.isResExist()) {
-                        appendChild(node);
-                        return true;
+                for (Executable exec : execs) {
+                    PegNode pegNode = exec.exec();
+
+                    switch (pegNode.getResultType()){
+                        case OK:
+                            res.appendChild(pegNode);
+                            res.setResultType(ResultType.OK);
+                            res.setError("");
+                            return res;
+                        case EMPTY:
+                            res.setResultType(ResultType.EMPTY);
+                            res.setError("");
+                            return res;
+                        case ERROR:
+                            res.setResultType(ResultType.ERROR);
+                            res.setError(" orderedChoise " + " lastPos = " + state.getPosition() + " unexpected " + state.atPos());
+
                     }
                 }
-                return false;
+                return res;
             }
         };
 
     }
 
-    public PegNode oneOrMore(final PegNode node) {
-        return new PegNode() {
+    public Executable oneOrMore(final Executable exec) {
+        return new Executable() {
 
             @Override
-            public boolean exec() throws ParseInputException {
-                clearNode();
-                setType(SpegTypes.ONE_OR_MORE);
-                while (node.exec() && node.isResExist()) {
-                    PegNode truncateNode = node.copyTruncate();
-                    appendChild(truncateNode);
+            public PegNode exec(){
+                PegNode res = new PegNode();
+                res.setType(SpegTypes.ONE_OR_MORE);
+
+                PegNode pegNode;
+                while ((pegNode = exec.exec()).getResultType().equals(ResultType.OK)) {
+                    res.appendChild(pegNode);
                 }
-                return getChildrens().size() > 0;
-            }
-        };
-    }
 
-    public PegNode zeroOrMore(final PegNode node) {
-        return new PegNode() {
-
-            @Override
-            public boolean exec() throws ParseInputException {
-                clearNode();
-                setType(SpegTypes.ZERO_OR_MORE);
-                while (node.exec() && node.isResExist()) {
-                    PegNode truncateNode = node.copyTruncate();
-                    appendChild(truncateNode);
-
+                if ( res.getChildrens().size()>0){
+                    res.setResultType(ResultType.OK);
+                }else {
+                    res.setResultType(ResultType.ERROR);
+                    res.setError(" oneOrMore " + " lastPos = " + state.getPosition() + " unexpected " + state.atPos());
                 }
-                setResExist(getChildrens().size()>0);
-                return true;
+                return res;
+            }
+        };
+    }
+
+    public Executable zeroOrMore(final Executable exec) {
+        return new Executable() {
+
+            @Override
+            public PegNode exec(){
+                PegNode res = new PegNode();
+                res.setType(SpegTypes.ZERO_OR_MORE);
+
+                PegNode pegNode;
+                while ((pegNode = exec.exec()).getResultType().equals(ResultType.OK)) {
+                    res.appendChild(pegNode);
+                }
+
+                if (res.getChildrens().size() == 0){
+                    res.setResultType(ResultType.EMPTY);
+                } else {
+                    res.setResultType(ResultType.OK);
+                }
+                return res;
             }
         };
 
     }
 
-    public PegNode parseEndOfFile(){
-        return new PegNode() {
+    public Executable parseEndOfFile(){
+        return new Executable() {
 
             @Override
-            public boolean exec() throws ParseInputException {
+            public PegNode exec(){
 
-                clearNode();
+                PegNode res = new PegNode();
+                res.setType(SpegTypes.END_OF_FILE);
                 if (state.getPosition()>=state.getTextData().length()){
-                    setType(SpegTypes.END_OF_FILE);
-                    setStartPosition(state.getPosition());
-                    setEndPosition(state.getPosition());
-                    return true;
+
+                    res.setStartPosition(state.getPosition());
+                    res.setEndPosition(state.getPosition());
                 } else {
-                    System.err.println(" parseEndOfFile " + " lastPos = " + state.getPosition());
-                    return false;
+                    res.setResultType(ResultType.ERROR);
+                    res.setError(" parseEndOfFile " + " lastPos = " + state.getPosition() + " unexpected " + state.atPos());
                 }
+                return res;
             }
         };
     }

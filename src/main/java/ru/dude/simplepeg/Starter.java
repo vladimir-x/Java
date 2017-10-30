@@ -25,13 +25,15 @@ public class Starter {
         System.out.println(state.getTextData());
 
         SpegParser spegParser = new SpegParser(state);
-        PegNode res = spegParser.peg();
-        res.exec();
+        PegNode res = spegParser.peg().exec();
 
         printTree(res);
     }
 
     public static void printTree(PegNode node){
+        System.out.println(node.getResultType());
+        System.out.println(node.getError());
+
         StringBuilder sb = new StringBuilder();
         node.toJson(sb,0);
         System.out.println(sb);

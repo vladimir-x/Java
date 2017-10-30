@@ -23,24 +23,26 @@ public class SpegParser {
      * All SPEG
      * @return
      */
-    public PegNode peg() {
+    public Executable peg() {
 
-        return parsingBody();
-/*
+
+
+
+
         return rdParser.sequence(
                 rdParser.zeroOrMore(spacesBreaks()),
                 parsingHeader(),
                 rdParser.oneOrMore(spacesBreaks()),
                 parsingBody(),
                 rdParser.parseEndOfFile()
-        );*/
+        );
     }
 
     /**
      * HEADER only
      * @return
      */
-    public PegNode parsingHeader() {
+    public Executable parsingHeader() {
         return rdParser.sequence(
                 rdParser.parseString("GRAMMAR"),
                 rdParser.oneOrMore(spacesBreaks()),
@@ -53,7 +55,7 @@ public class SpegParser {
      * BODy only
      * @return
      */
-    public PegNode parsingBody() {
+    public Executable parsingBody() {
         return rdParser.oneOrMore(
                 rdParser.orderedChoise(
                         parsingRule(),
@@ -66,7 +68,7 @@ public class SpegParser {
      * Space symbols filter
      * @return
      */
-    private PegNode spacesBreaks() {
+    private Executable spacesBreaks() {
         return rdParser.parseRegexp("[\\s]");
     }
 
@@ -74,7 +76,7 @@ public class SpegParser {
      * Parce rule name
      * @return
      */
-    private PegNode ruleName() {
+    private Executable ruleName() {
         return rdParser.sequence(
                 rdParser.parseRegexp("[a-zA-Z_]"),
                 rdParser.zeroOrMore(rdParser.parseRegexp("[a-zA-Z0-9_]"))
@@ -88,16 +90,14 @@ public class SpegParser {
      * TODO: (not ready)
      * @return
      */
-    private PegNode parsingRule() {
+    private Executable parsingRule() {
         return rdParser.sequence(
 
-                rdParser.zeroOrMore(rdParser.parseString("URL")),
-                //rdParser.zeroOrMore(rdParser.parseRegexp("[a-zA-Z0-9_]")),
-                //rdParser.zeroOrMore(spacesBreaks()),
+                rdParser.zeroOrMore(rdParser.parseRegexp("[a-zA-Z0-9_]")),
+                rdParser.zeroOrMore(spacesBreaks()),
                 rdParser.parseString("->"),
-                //rdParser.zeroOrMore(spacesBreaks()),
-                //rdParser.zeroOrMore(rdParser.parseRegexp("[a-zA-Z0-9_]"))
-                rdParser.zeroOrMore(rdParser.parseString("KARL"))
+                rdParser.zeroOrMore(spacesBreaks()),
+                rdParser.zeroOrMore(rdParser.parseRegexp("[a-zA-Z0-9_]"))
 
         );
     }

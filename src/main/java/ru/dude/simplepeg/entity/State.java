@@ -66,4 +66,10 @@ public class State {
         return position;
     }
 
+    public String atPos() {
+        if (position<textData.length()){
+            return textData.charAt(position)+"";
+        }
+        return null;
+    }
 }

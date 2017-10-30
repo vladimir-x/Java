@@ -11,17 +11,18 @@ import java.util.List;
  *
  * Created by dude on 29.10.2017.
  */
-public abstract class PegNode implements Executable {
+public class PegNode{
     SpegTypes type;
     StringBuilder match = new StringBuilder();
     Integer startPosition;
     Integer endPosition;
 
-    boolean resExist = true;
-
     List<PegNode> childrens = new ArrayList<>();
 
-    protected void appendChild(PegNode child) {
+    ResultType resultType = ResultType.NONE;
+    String error;
+
+    public void appendChild(PegNode child) {
         childrens.add(child);
         match.append(child.match);
 
@@ -47,11 +48,11 @@ public abstract class PegNode implements Executable {
         if (childrens.size()>0) {
             addtabs(sb, level + 1).append("\"childrens\":[\n");
             for (PegNode children : childrens) {
-                children.toJson(sb, level + 1);
+                children.toJson(sb, level + 2);
             }
             addtabs(sb, level + 1).append("]\n");
         }
-        addtabs(sb,level).append("}\n");
+        addtabs(sb,level).append("},\n");
     }
 
     private StringBuilder addtabs(StringBuilder sb,int level){
@@ -113,36 +114,21 @@ public abstract class PegNode implements Executable {
         this.childrens = childrens;
     }
 
-    public boolean isResExist() {
-        return resExist;
+
+    public ResultType getResultType() {
+        return resultType;
     }
 
-    public void setResExist(boolean resExist) {
-        this.resExist = resExist;
+    public void setResultType(ResultType resultType) {
+        this.resultType = resultType;
     }
 
-    public void clearNode(){
-        this.match = new StringBuilder();
-        this.startPosition = null;
-        this.endPosition = null;
-        this.childrens = new ArrayList<>();
+    public String getError() {
+        return error;
     }
 
-    public PegNode copyTruncate(){
-        PegNode copy = new PegNode() {
-            @Override
-            public boolean exec() throws ParseInputException {
-                return false;
-            }
-        };
-
-        copy.type = this.type;
-        copy.match = this.match;
-        copy.startPosition = this.startPosition;
-        copy.endPosition = this.endPosition;
-        copy.setChildrens(this.childrens);
-
-        clearNode();
-        return copy;
+    public void setError(String error) {
+        this.error = error;
     }
+
 }
