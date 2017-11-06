@@ -15,20 +15,16 @@ import java.util.regex.Pattern;
  */
 public class RdParser {
 
-    /**
-     * Object with processing data
-     */
-    State state;
 
-    public RdParser(State state) {
-        this.state = state;
+    public RdParser() {
+
     }
 
     public Executable parseString(final String str) {
 
         return new Executable() {
             @Override
-            public PegNode exec() {
+            public PegNode exec(State state) {
                 PegNode res = new PegNode();
                 res.setType(SpegTypes.STRING);
 
@@ -52,7 +48,7 @@ public class RdParser {
     public Executable parseRegexp(final String regexp) {
         return new Executable() {
             @Override
-            public PegNode exec() {
+            public PegNode exec(State state) {
 
                 PegNode res = new PegNode();
                 res.setType(SpegTypes.REGEXP);
@@ -80,12 +76,12 @@ public class RdParser {
         return new Executable() {
 
             @Override
-            public PegNode exec() {
+            public PegNode exec(State state) {
                 PegNode res = new PegNode();
                 res.setType(SpegTypes.SEQUENCE);
 
                 for (Executable exec : execs) {
-                    PegNode pegNode = exec.exec();
+                    PegNode pegNode = exec.exec(state);
 
                     switch (pegNode.getResultType()) {
                         case OK:
@@ -112,18 +108,20 @@ public class RdParser {
         return new Executable() {
 
             @Override
-            public PegNode exec() {
+            public PegNode exec(State state) {
                 PegNode res = new PegNode();
                 res.setType(SpegTypes.ORDERED_CHOICE);
 
                 for (Executable exec : execs) {
-                    PegNode pegNode = exec.exec();
+                    State statecp = state.copy();
+                    PegNode pegNode = exec.exec(statecp);
 
                     switch (pegNode.getResultType()) {
                         case OK:
                             res.appendChild(pegNode);
                             res.setResultType(ResultType.OK);
                             res.setError("");
+                            state.setPosition(statecp.getPosition());
                             return res;
                         case EMPTY:
                             res.setResultType(ResultType.EMPTY);
@@ -145,12 +143,12 @@ public class RdParser {
         return new Executable() {
 
             @Override
-            public PegNode exec() {
+            public PegNode exec(State state) {
                 PegNode res = new PegNode();
                 res.setType(SpegTypes.ONE_OR_MORE);
 
                 PegNode pegNode;
-                while ((pegNode = exec.exec()).getResultType().equals(ResultType.OK)) {
+                while ((pegNode = exec.exec(state)).getResultType().equals(ResultType.OK)) {
                     res.appendChild(pegNode);
                 }
 
@@ -169,12 +167,12 @@ public class RdParser {
         return new Executable() {
 
             @Override
-            public PegNode exec() {
+            public PegNode exec(State state) {
                 PegNode res = new PegNode();
                 res.setType(SpegTypes.ZERO_OR_MORE);
 
                 PegNode pegNode;
-                while ((pegNode = exec.exec()).getResultType().equals(ResultType.OK)) {
+                while ((pegNode = exec.exec(state)).getResultType().equals(ResultType.OK)) {
                     res.appendChild(pegNode);
                 }
 
@@ -193,11 +191,11 @@ public class RdParser {
         return new Executable() {
 
             @Override
-            public PegNode exec() {
+            public PegNode exec(State state) {
                 PegNode res = new PegNode();
                 res.setType(SpegTypes.OPTIONAL);
 
-                PegNode pegNode = exec.exec();
+                PegNode pegNode = exec.exec(state);
                 if (pegNode.getResultType().equals(ResultType.OK)) {
                     res.setResultType(ResultType.OK);
                     res.appendChild(pegNode);
@@ -215,7 +213,7 @@ public class RdParser {
         return new Executable() {
 
             @Override
-            public PegNode exec() {
+            public PegNode exec(State state) {
 
                 PegNode res = new PegNode();
                 res.setType(SpegTypes.END_OF_FILE);
@@ -233,17 +231,17 @@ public class RdParser {
     }
 
     /**
-     * Not Supported yet
-     * @param exec
+     *
+     * @param spParser
      * @return
      */
-    public Executable rec(final Executable exec) {
+    public Executable rec(final SpegParser spParser) {
         return new Executable() {
 
             @Override
-            public PegNode exec() {
-
-                throw  new UnsupportedOperationException("Not suppordet yet");
+            public PegNode exec(State state) {
+                Executable recExec = spParser.ruleExpression();
+                return recExec.exec(state);
             }
         };
     }

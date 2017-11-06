@@ -25,7 +25,7 @@ public class Starter {
         System.out.println(state.getTextData());
 
         SpegParser spegParser = new SpegParser(state);
-        PegNode res = spegParser.peg().exec();
+        PegNode res = spegParser.peg().exec(state);
 
         printTree(res);
     }

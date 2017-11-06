@@ -16,7 +16,7 @@ public class SpegParser {
 
     SpegParser(State state) {
         this.state = state;
-        rdParser = new RdParser(state);
+        rdParser = new RdParser();
     }
 
     /**
@@ -25,39 +25,14 @@ public class SpegParser {
      */
     public Executable peg() {
 
-        return rdParser.orderedChoise(
-                rdParser.parseString("A"),
-                rdParser.parseString("11"),
-                rdParser.parseString("AMO")
-        );
-
-/*
-        return rdParser.orderedChoise(
-                parsingOptional(),
-                parsingAtomicExpression()
-        );
-*/
-/*
-        rdParser.orderedChoise(
-                parsingNot(),
-                parsingAnd(),
-                parsingOptional(),
-                parsingOneOrMore(),
-                parsingZeroOrMore(),
-                parsingGroup(),
-                parsingAtomicExpression()
-        );
-        */
-
-
-/*
         return rdParser.sequence(
                 rdParser.zeroOrMore(spacesBreaks()),
                 parsingHeader(),
                 rdParser.oneOrMore(spacesBreaks()),
                 parsingBody(),
                 rdParser.parseEndOfFile()
-        );*/
+        );
+
     }
 
     /**
@@ -137,7 +112,7 @@ public class SpegParser {
      * js parsing_expression
      * @return
      */
-    private Executable ruleExpression() {
+    public Executable ruleExpression() {
         return rdParser.orderedChoise(
                 parsingSequence(),
                 parsingOrderedChoice(),
@@ -185,10 +160,10 @@ public class SpegParser {
                 parsingNot(),
                 parsingAnd(),
                 parsingOptional(),
-                parsingAtomicExpression(),
                 parsingOneOrMore(),
                 parsingZeroOrMore(),
-                parsingGroup()
+                parsingGroup(),
+                parsingAtomicExpression()
 
         );
 
@@ -227,7 +202,7 @@ public class SpegParser {
         return rdParser.sequence(
                 rdParser.parseString("("),
                 rdParser.zeroOrMore(spacesBreaks()),
-        //        rdParser.rec(ruleExpression()),
+                rdParser.rec(this),
                 rdParser.zeroOrMore(spacesBreaks()),
                 rdParser.parseString(")")
         );

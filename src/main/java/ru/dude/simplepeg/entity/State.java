@@ -72,4 +72,16 @@ public class State {
         }
         return null;
     }
+
+    public State copy(){
+        State state = new State();
+        state.textData = textData;
+        state.position = position;
+        return state;
+    }
+
+
+    public void setPosition(int position) {
+        this.position = position;
+    }
 }

@@ -1,6 +1,7 @@
 package ru.dude.simplepeg;
 
 import ru.dude.simplepeg.entity.PegNode;
+import ru.dude.simplepeg.entity.State;
 
 /**
  * For implements in PEG expression
@@ -13,5 +14,5 @@ public interface Executable {
      * @return
      * @throws ParseInputException
      */
-    PegNode exec();
+    PegNode exec(State state);
 }
