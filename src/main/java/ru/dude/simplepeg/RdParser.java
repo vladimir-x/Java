@@ -124,7 +124,7 @@ public class RdParser {
     /**
      * Последовательное выполнение. Первая, полнившаяся OK возвращается как результат.
      * Если вернулись все пустые: возвращает EMPTY
-     * Если в результатах каждого exec был ERROR - возвращает ERROR
+     * Если в результатах exec были ERROR или EMPTY - возвращает ERROR
      * @param execs
      * @return
      */
@@ -136,6 +136,8 @@ public class RdParser {
                 PegNode res = new PegNode();
                 res.setType(SpegTypes.ORDERED_CHOICE);
 
+                boolean hasEmpty = false;
+                boolean hasError = false;
 
                 for (Executable exec : execs) {
                     State statecp = state.copy();
@@ -150,12 +152,23 @@ public class RdParser {
                             return res;
                         case EMPTY:
                             res.setResultType(ResultType.EMPTY);
-                            res.setError("");
-                            return res;
+                            hasEmpty = true;
+                            //return res;
+                            break;
                         case ERROR:
                             res.setResultType(ResultType.ERROR);
                             res.setError(" orderedChoice " + " lastPos = " + state.getPosition() + " unexpected " + state.atPos());
+                            hasError = true;
+                            break;
 
+                    }
+                }
+
+                if (hasError){
+                    res.setResultType(ResultType.ERROR);
+                } else {
+                    if (hasEmpty) {
+                        res.setResultType(ResultType.EMPTY);
                     }
                 }
                 return res;
@@ -239,14 +252,12 @@ public class RdParser {
                 PegNode res = new PegNode();
                 res.setType(SpegTypes.OPTIONAL);
 
-//TODO: ВОЗМОЖНА ОШИБКА: состояние изменится, при опионале ERROR и следующее правило не считается
-//TODO:!!!!!    state.copy() !!!!
-
-               // state.copy();
-                PegNode pegNode = exec.exec(state);
+                State statecp = state.copy();
+                PegNode pegNode = exec.exec(statecp);
                 if (pegNode.getResultType().equals(ResultType.OK)) {
                     res.setResultType(ResultType.OK);
                     res.appendChild(pegNode);
+                    state.setPosition(statecp.getPosition());
                 } else {
                     res.setResultType(ResultType.EMPTY);
                 }

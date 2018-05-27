@@ -86,10 +86,6 @@ public class Tests extends Assert{
         assertProcess(input,ResultType.OK);
     }
 
-
-    //TODO: test for SEQUENCE, ONE_OR_MANY and others
-
-
     @Test
     public void complicateTest_URL(){
         String input = "GRAMMAR url\n" +
