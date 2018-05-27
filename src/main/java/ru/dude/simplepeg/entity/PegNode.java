@@ -21,6 +21,7 @@ public class PegNode{
 
     ResultType resultType = ResultType.NONE;
     String error;
+    private String execName;
 
     public void appendChild(PegNode child) {
         childrens.add(child);
@@ -40,6 +41,7 @@ public class PegNode{
     public void toJson(StringBuilder sb,int level){
 
         addtabs(sb,level).append("{\n");
+        addtabs(sb,level+1).append("\"execName\" :\"").append(execName).append("\",\n");
         addtabs(sb,level+1).append("\"type\" :\"").append(type).append("\",\n");
         addtabs(sb,level+1).append("\"match\" :\"").append(match).append("\",\n");
         addtabs(sb,level+1).append("\"startPosition\" :").append(startPosition).append(",\n");
@@ -131,4 +133,11 @@ public class PegNode{
         this.error = error;
     }
 
+    public void setExecName(String execName) {
+        this.execName = execName;
+    }
+
+    public String getExecName() {
+        return execName;
+    }
 }

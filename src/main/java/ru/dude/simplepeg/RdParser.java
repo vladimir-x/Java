@@ -27,6 +27,7 @@ public class RdParser {
             public PegNode exec(State state) {
                 PegNode res = new PegNode();
                 res.setType(SpegTypes.STRING);
+                res.setExecName(str);
 
                 int endPos = state.getPosition() + str.length();
                 if (endPos <= state.getTextData().length() &&
@@ -72,25 +73,32 @@ public class RdParser {
         };
     }
 
-    public Executable sequence(final Executable... execs) {
+    public Executable sequence(final String execName, final Executable... execs) {
         return new Executable() {
 
             @Override
             public PegNode exec(State state) {
                 PegNode res = new PegNode();
                 res.setType(SpegTypes.SEQUENCE);
+                res.setExecName(execName);
 
                 for (Executable exec : execs) {
-                    PegNode pegNode = exec.exec(state);
+                    State stateCp = state.copy();
+                    PegNode pegNode = exec.exec(stateCp);
 
                     switch (pegNode.getResultType()) {
                         case OK:
                             res.appendChild(pegNode);
                             res.setResultType(ResultType.OK);
+                            state.setPosition(stateCp.getPosition());
+                            break;
+                        case EMPTY:
+
                             break;
                         case ERROR:
                             res.setResultType(ResultType.ERROR);
-                            res.setError(" sequence " + " lastPos = " + state.getPosition() + " unexpected " + state.atPos());
+                            res.setError(" sequence "+execName + " lastPos = " + stateCp.getPosition() + " unexpected " + stateCp.atPos());
+                            state.setPosition(stateCp.getPosition());
                             return res;
                     }
                 }
@@ -111,6 +119,7 @@ public class RdParser {
             public PegNode exec(State state) {
                 PegNode res = new PegNode();
                 res.setType(SpegTypes.ORDERED_CHOICE);
+
 
                 for (Executable exec : execs) {
                     State statecp = state.copy();
@@ -139,13 +148,14 @@ public class RdParser {
 
     }
 
-    public Executable oneOrMore(final Executable exec) {
+    public Executable oneOrMore(final String execName, final Executable exec) {
         return new Executable() {
 
             @Override
             public PegNode exec(State state) {
                 PegNode res = new PegNode();
                 res.setType(SpegTypes.ONE_OR_MORE);
+                res.setExecName(execName);
 
                 PegNode pegNode;
                 while ((pegNode = exec.exec(state)).getResultType().equals(ResultType.OK)) {

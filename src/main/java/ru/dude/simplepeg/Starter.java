@@ -3,10 +3,7 @@ package ru.dude.simplepeg;
 import ru.dude.simplepeg.entity.PegNode;
 import ru.dude.simplepeg.entity.State;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileReader;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,7 +12,7 @@ import java.util.List;
  */
 public class Starter {
 
-    public static void main(String [] args)throws Exception{
+    public static void main(String[] args) throws Exception {
 
         File f = new File("input.txt");
 
@@ -30,12 +27,15 @@ public class Starter {
         printTree(res);
     }
 
-    public static void printTree(PegNode node){
+    public static void printTree(PegNode node) throws IOException {
         System.out.println(node.getResultType());
         System.out.println(node.getError());
 
         StringBuilder sb = new StringBuilder();
-        node.toJson(sb,0);
-        System.out.println(sb);
+        node.toJson(sb, 0);
+        BufferedWriter bw = new BufferedWriter(new FileWriter("tree.json"));
+
+        bw.write(sb.toString());
+        bw.close();
     }
 }
