@@ -73,6 +73,15 @@ public class RdParser {
         };
     }
 
+    /**
+     * Последовательно выполняет все exec.
+     * Возвращает ERROR, если вернулся хотя бы один ERROR
+     * EMPTY - если все exec вернули EMPTY
+     * OK - если все exec вернули OK(минимум один) или EMPTY
+     * @param execName
+     * @param execs
+     * @return
+     */
     public Executable sequence(final String execName, final Executable... execs) {
         return new Executable() {
 
@@ -112,7 +121,14 @@ public class RdParser {
 
     }
 
-    public Executable orderedChoise(final Executable... execs) {
+    /**
+     * Последовательное выполнение. Первая, полнившаяся OK возвращается как результат.
+     * Если вернулись все пустые: возвращает EMPTY
+     * Если в результатах каждого exec был ERROR - возвращает ERROR
+     * @param execs
+     * @return
+     */
+    public Executable orderedChoice(final Executable... execs) {
         return new Executable() {
 
             @Override
@@ -138,7 +154,7 @@ public class RdParser {
                             return res;
                         case ERROR:
                             res.setResultType(ResultType.ERROR);
-                            res.setError(" orderedChoise " + " lastPos = " + state.getPosition() + " unexpected " + state.atPos());
+                            res.setError(" orderedChoice " + " lastPos = " + state.getPosition() + " unexpected " + state.atPos());
 
                     }
                 }
@@ -148,6 +164,13 @@ public class RdParser {
 
     }
 
+    /**
+     * Выплняет exec, добавляя OK руезльутаты в child
+     * Возвращает OK если добавленых child > 0 иначе ERROR
+     * @param execName
+     * @param exec
+     * @return
+     */
     public Executable oneOrMore(final String execName, final Executable exec) {
         return new Executable() {
 
@@ -173,6 +196,12 @@ public class RdParser {
         };
     }
 
+    /**
+     * Выплняет exec, добавляя OK руезльутаты в child
+     * Возвращает OK если добавленых child > 0, EMPTY если child = 0
+     * @param exec
+     * @return
+     */
     public Executable zeroOrMore(final Executable exec) {
         return new Executable() {
 
@@ -197,6 +226,11 @@ public class RdParser {
 
     }
 
+    /**
+     * Возвращает OK если результат exec, иначе EMPTY
+     * @param exec
+     * @return
+     */
     public Executable optional(final Executable exec) {
         return new Executable() {
 
@@ -205,6 +239,10 @@ public class RdParser {
                 PegNode res = new PegNode();
                 res.setType(SpegTypes.OPTIONAL);
 
+//TODO: ВОЗМОЖНА ОШИБКА: состояние изменится, при опионале ERROR и следующее правило не считается
+//TODO:!!!!!    state.copy() !!!!
+
+               // state.copy();
                 PegNode pegNode = exec.exec(state);
                 if (pegNode.getResultType().equals(ResultType.OK)) {
                     res.setResultType(ResultType.OK);
@@ -219,6 +257,10 @@ public class RdParser {
 
     }
 
+    /**
+     * OK если достигнут конец строки данных
+     * @return
+     */
     public Executable parseEndOfFile() {
         return new Executable() {
 
@@ -229,6 +271,7 @@ public class RdParser {
                 res.setType(SpegTypes.END_OF_FILE);
                 if (state.getPosition() >= state.getTextData().length()) {
 
+                    res.setResultType(ResultType.OK);
                     res.setStartPosition(state.getPosition());
                     res.setEndPosition(state.getPosition());
                 } else {

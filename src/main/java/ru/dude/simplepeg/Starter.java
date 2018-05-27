@@ -16,8 +16,7 @@ public class Starter {
 
         File f = new File("input.txt");
 
-        State state = new State();
-        state.loadByStream(new FileInputStream(f));
+        State state = new State(new FileInputStream(f));
 
         System.out.println(state.getTextData());
 

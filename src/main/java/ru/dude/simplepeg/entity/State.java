@@ -22,8 +22,19 @@ public class State {
      */
     int position;
 
-    public State(){
+    private State(){
         textData = new StringBuilder();
+        position = 0;
+    }
+
+    public State(InputStream is){
+        textData = new StringBuilder();
+        position = 0;
+        loadByStream(is);
+    }
+
+    public State(String grammar){
+        textData = new StringBuilder(grammar);
         position = 0;
     }
 
@@ -31,7 +42,7 @@ public class State {
      * Load data from input stream
      * @param is
      */
-    public void loadByStream(InputStream is){
+    private void loadByStream(InputStream is){
         textData = new StringBuilder();
 
         try (Reader r = new InputStreamReader(is, "UTF-8")){

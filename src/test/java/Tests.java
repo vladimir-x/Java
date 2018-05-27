@@ -11,7 +11,8 @@ import java.io.ByteArrayInputStream;
  */
 public class Tests extends Assert{
 
-    private void assertProcess(String input,ResultType expected,PegNode result){
+    private void assertProcess(String input,ResultType expected){
+        PegNode result = SpegParser.createAndExec(new ByteArrayInputStream(input.getBytes()));
         String message = "INPUT:\n"+input+"\nERROR:"+result.getError();
         assertEquals(message,expected,result.getResultType());
     }
@@ -34,51 +35,44 @@ public class Tests extends Assert{
     @Test
     public void headerAndSimpleRule(){
         String input = "GRAMMAR simple rule-> \"aaaa\";";
-        PegNode res = SpegParser.createAndExec(new ByteArrayInputStream(input.getBytes()));
-        assertProcess(input,ResultType.OK,res);
+        assertProcess(input,ResultType.OK);
     }
 
     @Test
     public void noRuleError(){
         String input = "GRAMMAR simple;";
-        PegNode res = SpegParser.createAndExec(new ByteArrayInputStream(input.getBytes()));
-        assertProcess(input,ResultType.ERROR,res);
+        assertProcess(input,ResultType.ERROR);
     }
 
     @Test
     public void noLastSemicolonError(){
         String input = "GRAMMAR simple rule-> \"aaaa\"";
-        PegNode res = SpegParser.createAndExec(new ByteArrayInputStream(input.getBytes()));
-        assertProcess(input,ResultType.ERROR,res);
+        assertProcess(input,ResultType.ERROR);
     }
 
     @Test
     public void oneRuleStrings(){
         String input = "GRAMMAR one rule-> \"aaaa\" \"bb\" \"cccc\" \"zz\";";
-        PegNode res = SpegParser.createAndExec(new ByteArrayInputStream(input.getBytes()));
-        assertProcess(input,ResultType.OK,res);
+        assertProcess(input,ResultType.OK);
     }
 
     @Test
     public void oneRuleRegexp(){
         String input = "GRAMMAR one rule-> \"XX\" [a-zA-Z0-9-]+ [^ #]*;";
-        PegNode res = SpegParser.createAndExec(new ByteArrayInputStream(input.getBytes()));
-        assertProcess(input,ResultType.OK,res);
+        assertProcess(input,ResultType.OK);
     }
 
 
     @Test
     public void twoRulesSimple(){
         String input = "GRAMMAR duo rule_one-> \"XX\" rule_two; rule_two-> \"YY\";";
-        PegNode res = SpegParser.createAndExec(new ByteArrayInputStream(input.getBytes()));
-        assertProcess(input,ResultType.OK,res);
+        assertProcess(input,ResultType.OK);
     }
 
     @Test
     public void twoRulesRegexp(){
         String input = "GRAMMAR duo rule_one-> \"XX\" rule_two [^ #]*; rule_two-> \"YY\" [a-zA-Z0-9-]+;";
-        PegNode res = SpegParser.createAndExec(new ByteArrayInputStream(input.getBytes()));
-        assertProcess(input,ResultType.OK,res);
+        assertProcess(input,ResultType.OK);
     }
 
     @Test
@@ -89,8 +83,7 @@ public class Tests extends Assert{
                 "r_two-> [^ #]*;\n" +
                 "r_three-> \"YY\";\n" +
                 "r_four-> \"ZZ\" [a-zA-Z0-9-]+;";
-        PegNode res = SpegParser.createAndExec(new ByteArrayInputStream(input.getBytes()));
-        assertProcess(input,ResultType.OK,res);
+        assertProcess(input,ResultType.OK);
     }
 
 
@@ -110,7 +103,6 @@ public class Tests extends Assert{
                 "pathname  ->  \"/\" [^ ?]*;\n" +
                 "search    ->  (\"?\" [^ #]*)?;\n" +
                 "hash      ->  \"#\" [^ ]*;";
-        PegNode res = SpegParser.createAndExec(new ByteArrayInputStream(input.getBytes()));
-        assertProcess(input,ResultType.OK,res);
+        assertProcess(input,ResultType.OK);
     }
 }
