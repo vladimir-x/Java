@@ -12,7 +12,7 @@ import java.io.ByteArrayInputStream;
 public class Tests extends Assert{
 
     private void assertProcess(String input,ResultType expected){
-        PegNode result = SpegParser.createAndExec(new ByteArrayInputStream(input.getBytes()));
+        PegNode result = SpegParser.createAndExec(input);
         String message = "INPUT:\n"+input+"\nERROR:"+result.getError();
         assertEquals(message,expected,result.getResultType());
     }

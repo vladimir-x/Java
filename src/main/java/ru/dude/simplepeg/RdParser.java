@@ -128,13 +128,14 @@ public class RdParser {
      * @param execs
      * @return
      */
-    public Executable orderedChoice(final Executable... execs) {
+    public Executable orderedChoice(final String execName, final Executable... execs) {
         return new Executable() {
 
             @Override
             public PegNode exec(State state) {
                 PegNode res = new PegNode();
                 res.setType(SpegTypes.ORDERED_CHOICE);
+                res.setExecName(execName);
 
                 boolean hasEmpty = false;
                 boolean hasError = false;
@@ -212,16 +213,19 @@ public class RdParser {
     /**
      * Выплняет exec, добавляя OK руезльутаты в child
      * Возвращает OK если добавленых child > 0, EMPTY если child = 0
+     *
+     * @param execName
      * @param exec
      * @return
      */
-    public Executable zeroOrMore(final Executable exec) {
+    public Executable zeroOrMore(final String execName, final Executable exec) {
         return new Executable() {
 
             @Override
             public PegNode exec(State state) {
                 PegNode res = new PegNode();
                 res.setType(SpegTypes.ZERO_OR_MORE);
+                res.setExecName(execName);
 
                 PegNode pegNode;
                 while ((pegNode = exec.exec(state)).getResultType().equals(ResultType.OK)) {
@@ -309,6 +313,8 @@ public class RdParser {
             }
         };
     }
+
+
 
 
 

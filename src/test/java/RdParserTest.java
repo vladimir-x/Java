@@ -98,7 +98,7 @@ public class RdParserTest extends Assert {
         String r3 = "[xX]+";
         RdParser rd = new RdParser();
         Executable executable =  rd.orderedChoice(
-                rd.parseString(s1),
+                "", rd.parseString(s1),
                 rd.parseString(s2),
                 rd.parseRegexp(r3)
         );
@@ -114,7 +114,7 @@ public class RdParserTest extends Assert {
         String r3 = "[0-9]+";
         RdParser rd = new RdParser();
         Executable executable =  rd.orderedChoice(
-                rd.optional(rd.parseString(s1)),
+                "", rd.optional(rd.parseString(s1)),
                 rd.optional(rd.parseString(s2)),
                 rd.optional(rd.parseRegexp(r3))
         );
@@ -128,7 +128,7 @@ public class RdParserTest extends Assert {
         String r3 = "[0-9]+";
         RdParser rd = new RdParser();
         Executable executable =  rd.orderedChoice(
-                rd.parseString(s1),
+                "", rd.parseString(s1),
                 rd.parseString(s2),
                 rd.parseRegexp(r3)
         );
@@ -160,7 +160,7 @@ public class RdParserTest extends Assert {
         String s1 = "a";
         RdParser rd = new RdParser();
         Executable executable =  rd.zeroOrMore(
-                rd.parseString(s1)
+                "", rd.parseString(s1)
         );
         assertProcess("aaaazzxxXx_",s1,executable,ResultType.OK);
     }
@@ -170,7 +170,7 @@ public class RdParserTest extends Assert {
         String s1 = "a";
         RdParser rd = new RdParser();
         Executable executable =  rd.zeroOrMore(
-                rd.parseString(s1)
+                "", rd.parseString(s1)
         );
         assertProcess("bbaaaazzxxXx_",s1,executable,ResultType.EMPTY);
     }

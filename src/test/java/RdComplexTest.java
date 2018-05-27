@@ -26,9 +26,9 @@ public class RdComplexTest extends Assert {
         Executable executable = rd.sequence("test_sequence",
                 rd.oneOrMore("", rd.parseString("a")),
                 rd.oneOrMore("", rd.parseString("b")),
-                rd.zeroOrMore(rd.parseString("cc")),
-                rd.zeroOrMore(rd.parseString("X")),
-                rd.zeroOrMore(rd.parseString("d")),
+                rd.zeroOrMore("", rd.parseString("cc")),
+                rd.zeroOrMore("", rd.parseString("X")),
+                rd.zeroOrMore("", rd.parseString("d")),
                 rd.oneOrMore("", rd.parseString("e"))
         );
         assertProcess("aabbccddee", "abcdXde", executable, ResultType.OK);
@@ -55,7 +55,7 @@ public class RdComplexTest extends Assert {
         RdParser rd = new RdParser();
         Executable executable = rd.oneOrMore("test_oneOrMany",
                 rd.orderedChoice(
-                        rd.optional(rd.parseString("bxy")),
+                        "", rd.optional(rd.parseString("bxy")),
                         rd.optional(rd.parseString("bxz"))
                 )
         );

@@ -1,8 +1,5 @@
 package ru.dude.simplepeg.entity;
 
-import ru.dude.simplepeg.Executable;
-import ru.dude.simplepeg.ParseInputException;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,6 +9,10 @@ import java.util.List;
  * Created by dude on 29.10.2017.
  */
 public class PegNode{
+
+    private static Integer nextId = 0;
+
+    Integer id;
     SpegTypes type;
     StringBuilder match = new StringBuilder();
     Integer startPosition;
@@ -22,6 +23,10 @@ public class PegNode{
     ResultType resultType = ResultType.NONE;
     String error;
     private String execName;
+
+    public PegNode(){
+        id = nextId++;
+    }
 
     public void appendChild(PegNode child) {
         childrens.add(child);
@@ -41,6 +46,7 @@ public class PegNode{
     public void toJson(StringBuilder sb,int level){
 
         addtabs(sb,level).append("{\n");
+        addtabs(sb,level+1).append("\"id\" :\"").append(id).append("\",\n");
         addtabs(sb,level+1).append("\"execName\" :\"").append(execName).append("\",\n");
         addtabs(sb,level+1).append("\"type\" :\"").append(type).append("\",\n");
         addtabs(sb,level+1).append("\"match\" :\"").append(match).append("\",\n");
@@ -64,6 +70,15 @@ public class PegNode{
         return sb;
     }
 
+    public PegNode child(String execName){
+
+        for (PegNode ch : childrens) {
+            if (ch.getExecName().equals(execName)){
+                return ch;
+            }
+        }
+        return null;
+    }
 
 
     public SpegTypes getType() {
