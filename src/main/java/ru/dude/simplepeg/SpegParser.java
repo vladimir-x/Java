@@ -1,6 +1,9 @@
 package ru.dude.simplepeg;
 
+import ru.dude.simplepeg.entity.PegNode;
 import ru.dude.simplepeg.entity.State;
+
+import java.io.InputStream;
 
 /**
  * Parser for SimplePEG constructions
@@ -16,6 +19,14 @@ public class SpegParser {
     SpegParser(State state) {
         this.state = state;
         rdParser = new RdParser();
+    }
+
+    public static PegNode createAndExec(InputStream grammarData){
+        State state = new State();
+        state.loadByStream(grammarData);
+
+        SpegParser spegParser = new SpegParser(state);
+        return spegParser.peg().exec(state);
     }
 
     /**
