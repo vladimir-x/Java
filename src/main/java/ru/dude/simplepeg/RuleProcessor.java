@@ -54,8 +54,9 @@ public class RuleProcessor {
     private PegNode executeRule(PegNode rule, State state){
 
         SpegParser spegParser = new SpegParser(state);
+        spegParser.setRules(rules);
 
-        Executable exec = spegParser.execRule(rule);
+        Executable exec = spegParser.makeRule(rule);
         PegNode res = exec.exec(state);
         return res;
     }

@@ -1,5 +1,7 @@
 package ru.dude.simplepeg.entity;
 
+import ru.dude.simplepeg.Executable;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,6 +25,8 @@ public class PegNode{
     ResultType resultType = ResultType.NONE;
     String error;
     private String execName;
+
+    Executable subRuleExec;
 
     public PegNode(){
         id = nextId++;
@@ -154,5 +158,13 @@ public class PegNode{
 
     public String getExecName() {
         return execName;
+    }
+
+    public Executable getSubRuleExec() {
+        return subRuleExec;
+    }
+
+    public void setSubRuleExec(Executable subRuleExec) {
+        this.subRuleExec = subRuleExec;
     }
 }
