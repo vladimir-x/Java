@@ -5,6 +5,7 @@ package ru.dude.simplepeg.entity;
  * Created by dude on 29.10.2017.
  */
 public enum SpegTypes {
+    UNDEFINED,
     SEQUENCE,
     ORDERED_CHOICE,
     ONE_OR_MORE,

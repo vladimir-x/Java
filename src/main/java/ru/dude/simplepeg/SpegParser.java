@@ -15,28 +15,23 @@ import java.util.Map;
  */
 public class SpegParser {
 
-    State state;
     RdParser rdParser;
-    private Map<String, PegNode> rules;
 
-
-    SpegParser(State state) {
-        this.state = state;
+    SpegParser() {
         rdParser = new RdParser();
     }
-
 
     public static PegNode createAndExec(String grammar) {
         State state = new State(grammar);
 
-        SpegParser spegParser = new SpegParser(state);
+        SpegParser spegParser = new SpegParser();
         return spegParser.peg().exec(state);
     }
 
     public static PegNode createAndExec(InputStream grammarIS) {
         State state = new State(grammarIS);
 
-        SpegParser spegParser = new SpegParser(state);
+        SpegParser spegParser = new SpegParser();
         return spegParser.peg().exec(state);
     }
 
@@ -150,7 +145,7 @@ public class SpegParser {
     }
 
 
-    private Executable parsingSequence() {
+    public Executable parsingSequence() {
 
         return rdParser.sequence("sequence",
                 rdParser.orderedChoice(
@@ -169,7 +164,7 @@ public class SpegParser {
         );
     }
 
-    private Executable parsingOrderedChoice() {
+    public Executable parsingOrderedChoice() {
         return rdParser.sequence("ordered_choise",
                 parsingSubExpression(),
                 rdParser.oneOrMore("ordered_choise_args",
@@ -183,7 +178,7 @@ public class SpegParser {
         );
     }
 
-    private Executable parsingSubExpression() {
+    public Executable parsingSubExpression() {
         return rdParser.sequence("sub_expression",
 
                 rdParser.zeroOrMore("", rdParser.sequence("tags",
@@ -206,7 +201,7 @@ public class SpegParser {
     }
 
 
-    private Executable tag() {
+    public Executable tag() {
         return rdParser.sequence("tag_name",
                 rdParser.parseRegexp("[a-zA-Z_]"),
                 rdParser.zeroOrMore("", rdParser.parseRegexp("[a-zA-Z0-9_]"))
@@ -214,7 +209,7 @@ public class SpegParser {
     }
 
 
-    private Executable parsingGroup() {
+    public Executable parsingGroup() {
         return rdParser.sequence("group",
                 rdParser.parseString("("),
                 rdParser.zeroOrMore("spaces", spacesBreaks()),
@@ -224,7 +219,7 @@ public class SpegParser {
         );
     }
 
-    private Executable parsingAtomicExpression() {
+    public Executable parsingAtomicExpression() {
         return rdParser.orderedChoice(
                 "", parseString(),
                 parseRegex(),
@@ -243,8 +238,8 @@ public class SpegParser {
         return ruleName();
     }
 
-    private Executable parseString() {
-        return rdParser.sequence("string",
+    public Executable parseString() {
+        return rdParser.sequence("string_expr",
                 rdParser.parseString("\""),
                 rdParser.oneOrMore("string", rdParser.orderedChoice(
                         "", rdParser.parseString("\\\\"),
@@ -255,9 +250,9 @@ public class SpegParser {
         );
     }
 
-    private Executable parseRegex() {
+    public Executable parseRegex() {
         return rdParser.orderedChoice(
-                "", rdParser.sequence("regex",
+                "", rdParser.sequence("regex_expr",
                         rdParser.parseString("["),
                         rdParser.optional(rdParser.parseString("^")),
                         rdParser.oneOrMore("regex[]", rdParser.orderedChoice(
@@ -272,8 +267,8 @@ public class SpegParser {
     }
 
 
-    private Executable parsingNot() {
-        return rdParser.sequence("not",
+    public Executable parsingNot() {
+        return rdParser.sequence("not_exr",
                 rdParser.parseString("!"),
                 rdParser.orderedChoice(
                         "", parsingGroup(),
@@ -282,8 +277,8 @@ public class SpegParser {
         );
     }
 
-    private Executable parsingAnd() {
-        return rdParser.sequence("and",
+    public Executable parsingAnd() {
+        return rdParser.sequence("and_expr",
                 rdParser.parseString("&"),
                 rdParser.orderedChoice(
                         "", parsingGroup(),
@@ -292,8 +287,8 @@ public class SpegParser {
         );
     }
 
-    private Executable parsingOneOrMore() {
-        return rdParser.sequence("one_or_more",
+    public Executable parsingOneOrMore() {
+        return rdParser.sequence("one_or_more_exr",
                 rdParser.orderedChoice(
                         "", parsingGroup(),
                         parsingAtomicExpression()
@@ -303,8 +298,8 @@ public class SpegParser {
     }
 
 
-    private Executable parsingZeroOrMore() {
-        return rdParser.sequence("zero_or_more",
+    public Executable parsingZeroOrMore() {
+        return rdParser.sequence("zero_or_more_expr",
                 rdParser.orderedChoice(
                         "", parsingGroup(),
                         parsingAtomicExpression()
@@ -313,8 +308,8 @@ public class SpegParser {
         );
     }
 
-    private Executable parsingOptional() {
-        return rdParser.sequence("optional",
+    public Executable parsingOptional() {
+        return rdParser.sequence("optional_expr",
                 rdParser.orderedChoice(
                         "", parsingGroup(),
                         parsingAtomicExpression()
@@ -323,50 +318,7 @@ public class SpegParser {
         );
     }
 
-
-    public Executable execRule(final PegNode rule) {
-        return new Executable() {
-
-            @Override
-            public PegNode exec(State state) {
-
-                if (rule.getExecName().equals("sub_expression")) {
-
-                    PegNode sub_rule = rules.get(rule.getMatch().toString());
-                    if (sub_rule.getSubRuleExec() !=null){
-                        return sub_rule;
-                    }
-                }
-
-
-                List<Executable> childExec = new ArrayList<>();
-
-                for (PegNode child : rule.getChildrens()) {
-                    childExec.add(execRule(child));
-                }
-
-                switch (rule.getType()) {
-                    case STRING:
-                        return parseString().exec(state);
-                    case REGEXP:
-                        return parseRegex().exec(state);
-                    case ORDERED_CHOICE:
-                        return rdParser.orderedChoice("er_rodered_choice",
-                                childExec.toArray(new Executable[]{})
-                        ).exec(state);
-
-                }
-
-                return null;
-            }
-        }
-    }
-
-    public void setRules(Map<String, PegNode> rules) {
-        this.rules = rules;
-    }
-
-    public Map<String, PegNode> getRules() {
-        return rules;
+    public RdParser getRdParser() {
+        return rdParser;
     }
 }

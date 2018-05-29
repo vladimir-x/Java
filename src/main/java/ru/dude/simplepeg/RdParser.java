@@ -315,6 +315,20 @@ public class RdParser {
     }
 
 
+    public Executable empty() {
+        return new Executable() {
+
+            @Override
+            public PegNode exec(State state) {
+                PegNode res = new PegNode();
+                res.setType(SpegTypes.UNDEFINED);
+                res.setResultType(ResultType.ERROR);
+                res.setError(" grammar not process " + " lastPos = " + state.getPosition() + " unexpected " + state.atPos());
+                return res;
+            }
+        };
+    }
+
 
 
 

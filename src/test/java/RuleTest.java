@@ -13,7 +13,7 @@ import ru.dude.simplepeg.entity.ResultType;
  */
 public class RuleTest extends Assert {
 
-    @Test
+    //@Test
     public void simpleRule(){
         String grammar = "GRAMMAR simple url-> \"aaaa\";";
         String text = "aaaa";

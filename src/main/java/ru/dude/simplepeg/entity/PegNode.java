@@ -50,21 +50,38 @@ public class PegNode{
     public void toJson(StringBuilder sb,int level){
 
         addtabs(sb,level).append("{\n");
-        addtabs(sb,level+1).append("\"id\" :\"").append(id).append("\",\n");
-        addtabs(sb,level+1).append("\"execName\" :\"").append(execName).append("\",\n");
-        addtabs(sb,level+1).append("\"type\" :\"").append(type).append("\",\n");
-        addtabs(sb,level+1).append("\"match\" :\"").append(match).append("\",\n");
-        addtabs(sb,level+1).append("\"startPosition\" :").append(startPosition).append(",\n");
-        addtabs(sb,level+1).append("\"endPosition\" :").append(endPosition).append(",\n");
+        //addtabs(sb,level+1).append("\"id\" :\"").append(id).append("\",\n");
+        addtabs(sb,level+1).append("\"execName\" :\"").append(quote(execName)).append("\",\n");
+        addtabs(sb,level+1).append("\"type\" :\"").append(quote(type)).append("\",\n");
+        addtabs(sb,level+1).append("\"match\" :\"").append(quote(match)).append("\",\n");
+        addtabs(sb,level+1).append("\"startPosition\" :").append(quote(startPosition)).append(",\n");
+        addtabs(sb,level+1).append("\"endPosition\" :").append(quote(endPosition));
 
         if (childrens.size()>0) {
+            sb.append(",\n");
             addtabs(sb, level + 1).append("\"childrens\":[\n");
+            boolean is_first = true;
             for (PegNode children : childrens) {
+                if (!is_first){
+                    sb.append(",\n");
+                }
                 children.toJson(sb, level + 2);
+                is_first = false;
             }
+            sb.append("\n");
             addtabs(sb, level + 1).append("]\n");
+        }else {
+            sb.append("\n");
         }
-        addtabs(sb,level).append("},\n");
+        addtabs(sb,level).append("}");
+    }
+
+    public String quote(Object x){
+        String s = x!=null ? x.toString() : "null";
+        return s.replaceAll("\"","\\\\\"")
+                .replaceAll("\n","\\\\n")
+                ;
+
     }
 
     private StringBuilder addtabs(StringBuilder sb,int level){
