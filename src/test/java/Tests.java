@@ -39,6 +39,18 @@ public class Tests extends Assert{
     }
 
     @Test
+    public void orderedGrammar(){
+        String input = "GRAMMAR simple rule-> \"a\"/\"b\";";
+        assertProcess(input,ResultType.OK);
+    }
+
+    @Test
+    public void groupGrammar(){
+        String input = "GRAMMAR simple rule-> (\"a\"/\"b\")+;";
+        assertProcess(input,ResultType.OK);
+    }
+
+    @Test
     public void noRuleError(){
         String input = "GRAMMAR simple;";
         assertProcess(input,ResultType.ERROR);

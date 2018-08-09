@@ -12,5 +12,5 @@ public enum SpegTypes {
     REGEXP,
     STRING,
     OPTIONAL,
-    END_OF_FILE,
+    END_OF_FILE, NOT,
 }

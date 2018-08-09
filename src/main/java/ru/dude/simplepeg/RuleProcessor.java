@@ -2,6 +2,7 @@ package ru.dude.simplepeg;
 
 import ru.dude.simplepeg.entity.CheckResult;
 import ru.dude.simplepeg.entity.PegNode;
+import ru.dude.simplepeg.entity.ResultType;
 import ru.dude.simplepeg.entity.State;
 
 import java.util.HashMap;
@@ -24,11 +25,12 @@ public class RuleProcessor {
         rules = new HashMap<>();
         firstRule = null;
 
-        PegNode lines = grammarTree.child("body").child("rule_lines");
+        PegNode lines = grammarTree.child("body");
         for (PegNode ch : lines.getChildrens()) {
-            if (ch.getExecName().equals("rule")){
-                String ruleName = ch.child("rule_name").getMatch().toString();
-                PegNode ruleExpression = ch.child("rule_expression");
+            if (ch.getExecName().equals("rule_lines")){
+                PegNode rule = ch.child("rule");
+                String ruleName = rule.child("rule_name").getMatch().toString();
+                PegNode ruleExpression = rule.child("rule_expression");
                 if (firstRule == null){
                     firstRule = ruleExpression;
                 }
@@ -44,20 +46,28 @@ public class RuleProcessor {
 
         State textState = new State(text);
 
-        executeRule(firstRule,textState);
+        PegNode resultExec = executeRule(firstRule, textState);
 
+        if (resultExec.getResultType() == ResultType.OK){
+            return CheckResult.ok();
+        }
 
-        return null;
-
+        return CheckResult.error(resultExec.getError());
     }
 
     private PegNode executeRule(PegNode rule, State state){
 
-        SpegParser spegParser = new SpegParser(state);
+        SpegParser spegParser = new SpegParser(state,rules);
 
-        Executable exec = spegParser.execRule(rule);
+
+
+        Executable exec = spegParser.applyRule(rule);
         PegNode res = exec.exec(state);
         return res;
     }
+
+
+
+
 
 }

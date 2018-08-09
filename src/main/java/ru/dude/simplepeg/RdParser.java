@@ -78,6 +78,7 @@ public class RdParser {
      * Возвращает ERROR, если вернулся хотя бы один ERROR
      * EMPTY - если все exec вернули EMPTY
      * OK - если все exec вернули OK(минимум один) или EMPTY
+     *
      * @param execName
      * @param execs
      * @return
@@ -106,7 +107,7 @@ public class RdParser {
                             break;
                         case ERROR:
                             res.setResultType(ResultType.ERROR);
-                            res.setError(" sequence "+execName + " lastPos = " + stateCp.getPosition() + " unexpected " + stateCp.atPos());
+                            res.setError(" sequence " + execName + " lastPos = " + stateCp.getPosition() + " unexpected " + stateCp.atPos());
                             state.setPosition(stateCp.getPosition());
                             return res;
                     }
@@ -125,6 +126,7 @@ public class RdParser {
      * Последовательное выполнение. Первая, полнившаяся OK возвращается как результат.
      * Если вернулись все пустые: возвращает EMPTY
      * Если в результатах exec были ERROR или EMPTY - возвращает ERROR
+     *
      * @param execs
      * @return
      */
@@ -165,7 +167,7 @@ public class RdParser {
                     }
                 }
 
-                if (hasError){
+                if (hasError) {
                     res.setResultType(ResultType.ERROR);
                 } else {
                     if (hasEmpty) {
@@ -181,6 +183,7 @@ public class RdParser {
     /**
      * Выплняет exec, добавляя OK руезльутаты в child
      * Возвращает OK если добавленых child > 0 иначе ERROR
+     *
      * @param execName
      * @param exec
      * @return
@@ -245,6 +248,7 @@ public class RdParser {
 
     /**
      * Возвращает OK если результат exec, иначе EMPTY
+     *
      * @param exec
      * @return
      */
@@ -273,7 +277,45 @@ public class RdParser {
     }
 
     /**
+     * Предикат not.
+     * По хорошему, внутри он должен двигать position... оставлю пока так
+     * @param exec
+     * @return
+     */
+    public Executable not(final Executable exec) {
+        return new Executable() {
+
+            @Override
+            public PegNode exec(State state) {
+                PegNode res = new PegNode();
+                res.setType(SpegTypes.NOT);
+
+                State statecp = state.copy();
+                PegNode pegNode = exec.exec(statecp);
+
+                switch (pegNode.getResultType()) {
+                    case OK:
+
+                        res.setResultType(ResultType.ERROR);
+                        res.setError(" not " + " lastPos = " + statecp.getPosition() + " unexpected " + statecp.atPos());
+
+                        break;
+                    case ERROR:
+                    default:
+                        res.setResultType(ResultType.OK);
+                        res.appendChild(pegNode);
+                        state.setPosition(statecp.getPosition());
+                        break;
+                }
+                return res;
+            }
+        };
+
+    }
+
+    /**
      * OK если достигнут конец строки данных
+     *
      * @return
      */
     public Executable parseEndOfFile() {
@@ -299,7 +341,6 @@ public class RdParser {
     }
 
     /**
-     *
      * @param spParser
      * @return
      */
@@ -313,9 +354,6 @@ public class RdParser {
             }
         };
     }
-
-
-
 
 
 }
