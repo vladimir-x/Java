@@ -2,7 +2,6 @@ package ru.dude.simplepeg;
 
 import ru.dude.simplepeg.entity.PegNode;
 import ru.dude.simplepeg.entity.ResultType;
-import ru.dude.simplepeg.entity.SpegTypes;
 import ru.dude.simplepeg.entity.State;
 
 import java.io.InputStream;
@@ -19,12 +18,12 @@ public class SpegParser {
 
     private Map<String, PegNode> rules;
     State state;
-    RdParser rdParser;
+    RdExecutor rdExecutor;
 
 
     public SpegParser(State state) {
         this.state = state;
-        this.rdParser = new RdParser();
+        this.rdExecutor = new RdExecutor();
     }
 
     public SpegParser(State state, Map<String, PegNode> rules) {
@@ -56,12 +55,12 @@ public class SpegParser {
 
         //return  parsingBody();
 
-        return rdParser.sequence("peg_parser",
-                rdParser.zeroOrMore("spaces", spacesBreaks()),
+        return rdExecutor.sequence("peg_parser",
+                rdExecutor.zeroOrMore("spaces", spacesBreaks()),
                 parsingHeader(),
-                rdParser.oneOrMore("spaces", spacesBreaks()),
+                rdExecutor.oneOrMore("spaces", spacesBreaks()),
                 parsingBody(),
-                rdParser.parseEndOfFile()
+                rdExecutor.parseEndOfFile()
         );
 
 
@@ -73,10 +72,10 @@ public class SpegParser {
      * @return
      */
     public Executable parsingHeader() {
-        return rdParser.sequence("header",
-                rdParser.parseString("GRAMMAR"),
-                rdParser.oneOrMore("spaces", spacesBreaks()),
-                rdParser.oneOrMore("rulenames", ruleName())
+        return rdExecutor.sequence("header",
+                rdExecutor.parseString("GRAMMAR"),
+                rdExecutor.oneOrMore("spaces", spacesBreaks()),
+                rdExecutor.oneOrMore("rulenames", ruleName())
         );
     }
 
@@ -87,10 +86,10 @@ public class SpegParser {
      * @return
      */
     public Executable parsingBody() {
-        return rdParser.oneOrMore("body",
-                rdParser.orderedChoice("rule_lines",
+        return rdExecutor.oneOrMore("body",
+                rdExecutor.orderedChoice("rule_lines",
                         parsingRule(),
-                        rdParser.oneOrMore("spaces", spacesBreaks())
+                        rdExecutor.oneOrMore("spaces", spacesBreaks())
                 )
         );
     }
@@ -101,7 +100,7 @@ public class SpegParser {
      * @return
      */
     private Executable spacesBreaks() {
-        return rdParser.parseRegexp("[\\s]");
+        return rdExecutor.parseRegexp("[\\s]");
     }
 
 
@@ -113,16 +112,16 @@ public class SpegParser {
      * @return
      */
     private Executable parsingRule() {
-        return rdParser.sequence("rule",
+        return rdExecutor.sequence("rule",
 
                 ruleName(),
-                rdParser.zeroOrMore("spaces", spacesBreaks()),
-                rdParser.parseString("->"),
-                rdParser.zeroOrMore("spaces", spacesBreaks()),
+                rdExecutor.zeroOrMore("spaces", spacesBreaks()),
+                rdExecutor.parseString("->"),
+                rdExecutor.zeroOrMore("spaces", spacesBreaks()),
                 ruleExpression(),
-                rdParser.zeroOrMore("spaces", spacesBreaks()),
-                rdParser.parseString(";"),
-                rdParser.zeroOrMore("spaces", spacesBreaks())
+                rdExecutor.zeroOrMore("spaces", spacesBreaks()),
+                rdExecutor.parseString(";"),
+                rdExecutor.zeroOrMore("spaces", spacesBreaks())
 
         );
     }
@@ -135,9 +134,9 @@ public class SpegParser {
      * @return
      */
     private Executable ruleName() {
-        return rdParser.sequence("rule_name",
-                rdParser.parseRegexp("[a-zA-Z_]"),
-                rdParser.zeroOrMore("", rdParser.parseRegexp("[a-zA-Z0-9_]"))
+        return rdExecutor.sequence("rule_name",
+                rdExecutor.parseRegexp("[a-zA-Z_]"),
+                rdExecutor.zeroOrMore("", rdExecutor.parseRegexp("[a-zA-Z0-9_]"))
         );
     }
 
@@ -149,7 +148,7 @@ public class SpegParser {
      * @return
      */
     public Executable ruleExpression() {
-        return rdParser.orderedChoice("rule_expression",
+        return rdExecutor.orderedChoice("rule_expression",
                 parsingSequence(),
                 parsingOrderedChoice(),
                 parsingSubExpression()
@@ -159,15 +158,15 @@ public class SpegParser {
 
     private Executable parsingSequence() {
 
-        return rdParser.sequence("sequence",
-                rdParser.orderedChoice(
+        return rdExecutor.sequence("sequence",
+                rdExecutor.orderedChoice(
                         "", parsingOrderedChoice(),
                         parsingSubExpression()
                 ),
-                rdParser.oneOrMore("sequence_args",
-                        rdParser.sequence("sequence_arg",
-                                rdParser.oneOrMore("spaces", spacesBreaks()),
-                                rdParser.orderedChoice(
+                rdExecutor.oneOrMore("sequence_args",
+                        rdExecutor.sequence("sequence_arg",
+                                rdExecutor.oneOrMore("spaces", spacesBreaks()),
+                                rdExecutor.orderedChoice(
                                         "", parsingOrderedChoice(),
                                         parsingSubExpression()
                                 )
@@ -177,13 +176,13 @@ public class SpegParser {
     }
 
     private Executable parsingOrderedChoice() {
-        return rdParser.sequence("ordered_choise",
+        return rdExecutor.sequence("ordered_choise",
                 parsingSubExpression(),
-                rdParser.oneOrMore("ordered_choise_args",
-                        rdParser.sequence("ordered_choise_arg",
-                                rdParser.zeroOrMore("spaces", spacesBreaks()),
-                                rdParser.parseString("/"),
-                                rdParser.zeroOrMore("spaces", spacesBreaks()),
+                rdExecutor.oneOrMore("ordered_choise_args",
+                        rdExecutor.sequence("ordered_choise_arg",
+                                rdExecutor.zeroOrMore("spaces", spacesBreaks()),
+                                rdExecutor.parseString("/"),
+                                rdExecutor.zeroOrMore("spaces", spacesBreaks()),
                                 parsingSubExpression()
                         )
                 )
@@ -191,14 +190,14 @@ public class SpegParser {
     }
 
     private Executable parsingSubExpression() {
-        return rdParser.sequence("sub_expression",
+        return rdExecutor.sequence("sub_expression",
 
-                rdParser.zeroOrMore("", rdParser.sequence("tags",
+                rdExecutor.zeroOrMore("", rdExecutor.sequence("tags",
                         tag(),
-                        rdParser.parseString(":")
+                        rdExecutor.parseString(":")
 
                 )),
-                rdParser.orderedChoice(
+                rdExecutor.orderedChoice(
                         "", parsingNot(),
                         parsingAnd(),
                         parsingOptional(),
@@ -214,28 +213,28 @@ public class SpegParser {
 
 
     private Executable tag() {
-        return rdParser.sequence("tag_name",
-                rdParser.parseRegexp("[a-zA-Z_]"),
-                rdParser.zeroOrMore("", rdParser.parseRegexp("[a-zA-Z0-9_]"))
+        return rdExecutor.sequence("tag_name",
+                rdExecutor.parseRegexp("[a-zA-Z_]"),
+                rdExecutor.zeroOrMore("", rdExecutor.parseRegexp("[a-zA-Z0-9_]"))
         );
     }
 
 
     private Executable parsingGroup() {
-        return rdParser.sequence("group",
-                rdParser.parseString("("),
-                rdParser.zeroOrMore("spaces", spacesBreaks()),
-                rdParser.rec(this),
-                rdParser.zeroOrMore("spaces", spacesBreaks()),
-                rdParser.parseString(")")
+        return rdExecutor.sequence("group",
+                rdExecutor.parseString("("),
+                rdExecutor.zeroOrMore("spaces", spacesBreaks()),
+                rdExecutor.rec(this),
+                rdExecutor.zeroOrMore("spaces", spacesBreaks()),
+                rdExecutor.parseString(")")
         );
     }
 
     private Executable parsingAtomicExpression() {
-        return rdParser.orderedChoice(
+        return rdExecutor.orderedChoice(
                 "", parseString(),
                 parseRegex(),
-                rdParser.parseEndOfFile(),
+                rdExecutor.parseEndOfFile(),
                 parsingRuleCall()
         );
     }
@@ -251,38 +250,38 @@ public class SpegParser {
     }
 
     private Executable parseString() {
-        return rdParser.sequence("string",
-                rdParser.parseString("\""),
-                rdParser.oneOrMore("string", rdParser.orderedChoice(
-                        "", rdParser.parseString("\\\\"),
-                        rdParser.parseString("\\\""),
-                        rdParser.parseRegexp("[^\"]")
+        return rdExecutor.sequence("string",
+                rdExecutor.parseString("\""),
+                rdExecutor.oneOrMore("string", rdExecutor.orderedChoice(
+                        "", rdExecutor.parseString("\\\\"),
+                        rdExecutor.parseString("\\\""),
+                        rdExecutor.parseRegexp("[^\"]")
                 )),
-                rdParser.parseString("\"")
+                rdExecutor.parseString("\"")
         );
     }
 
     private Executable parseRegex() {
-        return rdParser.orderedChoice(
-                "", rdParser.sequence("regex",
-                        rdParser.parseString("["),
-                        rdParser.optional(rdParser.parseString("^")),
-                        rdParser.oneOrMore("regex[]", rdParser.orderedChoice(
-                                "", rdParser.parseString("\\]"),
-                                rdParser.parseString("\\["),
-                                rdParser.parseRegexp("[^\\]]")
+        return rdExecutor.orderedChoice(
+                "", rdExecutor.sequence("regex",
+                        rdExecutor.parseString("["),
+                        rdExecutor.optional(rdExecutor.parseString("^")),
+                        rdExecutor.oneOrMore("regex[]", rdExecutor.orderedChoice(
+                                "", rdExecutor.parseString("\\]"),
+                                rdExecutor.parseString("\\["),
+                                rdExecutor.parseRegexp("[^\\]]")
                         )),
-                        rdParser.parseString("]")
+                        rdExecutor.parseString("]")
                 ),
-                rdParser.parseString(".")
+                rdExecutor.parseString(".")
         );
     }
 
 
     private Executable parsingNot() {
-        return rdParser.sequence("not",
-                rdParser.parseString("!"),
-                rdParser.orderedChoice(
+        return rdExecutor.sequence("not",
+                rdExecutor.parseString("!"),
+                rdExecutor.orderedChoice(
                         "", parsingGroup(),
                         parsingAtomicExpression()
                 )
@@ -290,9 +289,9 @@ public class SpegParser {
     }
 
     private Executable parsingAnd() {
-        return rdParser.sequence("and",
-                rdParser.parseString("&"),
-                rdParser.orderedChoice(
+        return rdExecutor.sequence("and",
+                rdExecutor.parseString("&"),
+                rdExecutor.orderedChoice(
                         "", parsingGroup(),
                         parsingAtomicExpression()
                 )
@@ -300,103 +299,35 @@ public class SpegParser {
     }
 
     private Executable parsingOneOrMore() {
-        return rdParser.sequence("one_or_more",
-                rdParser.orderedChoice(
+        return rdExecutor.sequence("one_or_more",
+                rdExecutor.orderedChoice(
                         "", parsingGroup(),
                         parsingAtomicExpression()
                 ),
-                rdParser.parseString("+")
+                rdExecutor.parseString("+")
         );
     }
 
 
     private Executable parsingZeroOrMore() {
-        return rdParser.sequence("zero_or_more",
-                rdParser.orderedChoice(
+        return rdExecutor.sequence("zero_or_more",
+                rdExecutor.orderedChoice(
                         "", parsingGroup(),
                         parsingAtomicExpression()
                 ),
-                rdParser.parseString("*")
+                rdExecutor.parseString("*")
         );
     }
 
     private Executable parsingOptional() {
-        return rdParser.sequence("optional",
-                rdParser.orderedChoice(
+        return rdExecutor.sequence("optional",
+                rdExecutor.orderedChoice(
                         "", parsingGroup(),
                         parsingAtomicExpression()
                 ),
-                rdParser.parseString("?")
+                rdExecutor.parseString("?")
         );
     }
 
 
-    public Executable applyRule(final PegNode rule) {
-        return new Executable() {
-
-            @Override
-            public PegNode exec(State state) {
-
-
-                Executable[] childExecs = null;
-
-                if (rule.getChildrens() != null) {
-                    List<Executable> childExecsList = new ArrayList<>();
-                    for (PegNode childNode : rule.getChildrens()) {
-                        childExecsList.add(applyRule(childNode));
-                    }
-                    childExecs = childExecsList.toArray(new Executable[0]);
-                }
-
-                String fullStr = rule.getMatch().toString();
-                String unQuotedStr = fullStr;
-                if (fullStr.length() > 1) {
-                    unQuotedStr = fullStr.substring(1, fullStr.length() - 1);
-                }
-
-                PegNode emptyRes = new PegNode();
-                emptyRes.setResultType(ResultType.EMPTY);
-
-                if (rule.getExecName() == null) {
-                    return emptyRes;
-                }
-
-                switch (rule.getExecName()) {
-                    case "string":
-                        return rdParser.parseString(unQuotedStr).exec(state);
-                    case "regex":
-                        return rdParser.parseRegexp(fullStr).exec(state);
-                    case "sequence":
-                        return rdParser.sequence("applySequence", childExecs).exec(state);
-                    case "ordered_choise":
-                        return rdParser.orderedChoice("applyOrderedChoise", childExecs).exec(state);
-                    case "one_or_more":
-                        return  rdParser.oneOrMore("applyOneOrMore", childExecs[0]).exec(state);
-                    case "zero_or_more":
-                        return rdParser.zeroOrMore("applyZeroOrMore", childExecs[0]).exec(state);
-                    case "not":
-                        return rdParser.not(childExecs[1]).exec(state);
-                    //case "and": //return rdParser.(childExecs[1]).exec(state);
-                    case "optional":
-                        return rdParser.optional(childExecs[0]).exec(state);
-                    case "rule_expression":
-                    default:
-                        if (rules.containsKey(fullStr)) {
-                            return applyRule(rules.get(fullStr)).exec(state);
-                        }
-
-
-                        if (childExecs.length == 0) {
-                            return emptyRes;
-                        }
-
-                        if (childExecs.length == 1) {
-                            return childExecs[0].exec(state);
-                        }
-
-                        return rdParser.sequence("deafultSequence", childExecs).exec(state);
-                }
-            }
-        };
-    }
 }

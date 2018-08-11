@@ -1,7 +1,7 @@
 import org.junit.Assert;
 import org.junit.Test;
 import ru.dude.simplepeg.Executable;
-import ru.dude.simplepeg.RdParser;
+import ru.dude.simplepeg.RdExecutor;
 import ru.dude.simplepeg.entity.PegNode;
 import ru.dude.simplepeg.entity.ResultType;
 import ru.dude.simplepeg.entity.State;
@@ -9,7 +9,7 @@ import ru.dude.simplepeg.entity.State;
 /**
  * Created by dude on 27.05.2018.
  * <p>
- * Сложные тесты для RdParser
+ * Сложные тесты для RdExecutor
  */
 public class RdComplexTest extends Assert {
 
@@ -22,7 +22,7 @@ public class RdComplexTest extends Assert {
 
     @Test
     public void sequencesAndOneZeroMore() {
-        RdParser rd = new RdParser();
+        RdExecutor rd = new RdExecutor();
         Executable executable = rd.sequence("test_sequence",
                 rd.oneOrMore("", rd.parseString("a")),
                 rd.oneOrMore("", rd.parseString("b")),
@@ -38,7 +38,7 @@ public class RdComplexTest extends Assert {
 
     @Test
     public void sequencesAndOptional() {
-        RdParser rd = new RdParser();
+        RdExecutor rd = new RdExecutor();
         Executable executable = rd.sequence("test_sequence",
                 rd.parseString("aaaa"),
                 rd.optional(rd.parseString("bbbb")),
@@ -52,7 +52,7 @@ public class RdComplexTest extends Assert {
 
     @Test
     public void oneOrManyAndOptional() {
-        RdParser rd = new RdParser();
+        RdExecutor rd = new RdExecutor();
         Executable executable = rd.oneOrMore("test_oneOrMany",
                 rd.orderedChoice(
                         "", rd.optional(rd.parseString("bxy")),
@@ -65,7 +65,7 @@ public class RdComplexTest extends Assert {
 
     @Test
     public void sequenceAndOneOrManyAndOptional() {
-        RdParser rd = new RdParser();
+        RdExecutor rd = new RdExecutor();
         Executable executable =
             rd.sequence("",
                     rd.oneOrMore("test_oneOrMany",

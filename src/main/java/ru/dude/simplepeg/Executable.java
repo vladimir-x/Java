@@ -12,7 +12,6 @@ public interface Executable {
     /**
      * Execute PEG expression
      * @return
-     * @throws ParseInputException
      */
     PegNode exec(State state);
 }

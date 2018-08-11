@@ -13,10 +13,10 @@ import java.util.regex.Pattern;
  * <p>
  * Created by dude on 29.10.2017.
  */
-public class RdParser {
+public class RdExecutor {
 
 
-    public RdParser() {
+    public RdExecutor() {
 
     }
 

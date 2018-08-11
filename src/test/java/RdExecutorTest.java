@@ -1,7 +1,7 @@
 import org.junit.Assert;
 import org.junit.Test;
 import ru.dude.simplepeg.Executable;
-import ru.dude.simplepeg.RdParser;
+import ru.dude.simplepeg.RdExecutor;
 import ru.dude.simplepeg.entity.PegNode;
 import ru.dude.simplepeg.entity.ResultType;
 import ru.dude.simplepeg.entity.State;
@@ -12,7 +12,7 @@ import ru.dude.simplepeg.entity.State;
  *
  * Тесты конструкций PEG
  */
-public class RdParserTest extends Assert {
+public class RdExecutorTest extends Assert {
 
 
     private void assertProcess(String grammar,String input,Executable executable,ResultType resultType){
@@ -25,7 +25,7 @@ public class RdParserTest extends Assert {
     public void simpleString(){
         String grammar = "aaaazz;";
         String input = "aaaazz";
-        Executable executable =  new RdParser().parseString(input);
+        Executable executable =  new RdExecutor().parseString(input);
         assertProcess(grammar,input,executable,ResultType.OK);
     }
 
@@ -34,7 +34,7 @@ public class RdParserTest extends Assert {
     public void simpleRegexp(){
         String grammar = "aaaazz;";
         String input = "[a-z]+";
-        Executable executable =  new RdParser().parseRegexp(input);
+        Executable executable =  new RdExecutor().parseRegexp(input);
         assertProcess(grammar,input,executable,ResultType.OK);
     }
 
@@ -42,7 +42,7 @@ public class RdParserTest extends Assert {
     public void eofTest(){
         String grammar = "";
         String input = "[___ANY___]";
-        Executable executable =  new RdParser().parseEndOfFile();
+        Executable executable =  new RdExecutor().parseEndOfFile();
         assertProcess(grammar,input,executable,ResultType.OK);
     }
 
@@ -52,7 +52,7 @@ public class RdParserTest extends Assert {
         String s1 = "aaaa";
         String s2 = "zz";
         String r3 = "[xX]+";
-        RdParser rd = new RdParser();
+        RdExecutor rd = new RdExecutor();
         Executable executable =  rd.sequence("test_sequence",
         rd.parseString(s1),
                 rd.parseString(s2),
@@ -67,7 +67,7 @@ public class RdParserTest extends Assert {
         String s1 = "aaaa";
         String s2 = "zz";
         String r3 = "[0-9]+";
-        RdParser rd = new RdParser();
+        RdExecutor rd = new RdExecutor();
         Executable executable =  rd.sequence("test_sequence",
                 rd.optional(rd.parseString(s1)),
                 rd.optional(rd.parseString(s2)),
@@ -82,7 +82,7 @@ public class RdParserTest extends Assert {
         String s1 = "aaaa";
         String s2 = "zz";
         String r3 = "[0-9]+";
-        RdParser rd = new RdParser();
+        RdExecutor rd = new RdExecutor();
         Executable executable =  rd.sequence("test_sequence",
                 rd.parseString(s1),
                 rd.parseString(s2),
@@ -96,7 +96,7 @@ public class RdParserTest extends Assert {
         String s1 = "aaaa";
         String s2 = "zz";
         String r3 = "[xX]+";
-        RdParser rd = new RdParser();
+        RdExecutor rd = new RdExecutor();
         Executable executable =  rd.orderedChoice(
                 "", rd.parseString(s1),
                 rd.parseString(s2),
@@ -112,7 +112,7 @@ public class RdParserTest extends Assert {
         String s1 = "aaaa";
         String s2 = "zz";
         String r3 = "[0-9]+";
-        RdParser rd = new RdParser();
+        RdExecutor rd = new RdExecutor();
         Executable executable =  rd.orderedChoice(
                 "", rd.optional(rd.parseString(s1)),
                 rd.optional(rd.parseString(s2)),
@@ -126,7 +126,7 @@ public class RdParserTest extends Assert {
         String s1 = "aaaa";
         String s2 = "zz";
         String r3 = "[0-9]+";
-        RdParser rd = new RdParser();
+        RdExecutor rd = new RdExecutor();
         Executable executable =  rd.orderedChoice(
                 "", rd.parseString(s1),
                 rd.parseString(s2),
@@ -138,7 +138,7 @@ public class RdParserTest extends Assert {
     @Test
     public void simpleOneOrMoreOk(){
         String s1 = "a";
-        RdParser rd = new RdParser();
+        RdExecutor rd = new RdExecutor();
         Executable executable =  rd.oneOrMore("simpleOneOrMoreOK_test",
                 rd.parseString(s1)
         );
@@ -148,7 +148,7 @@ public class RdParserTest extends Assert {
     @Test
     public void simpleOneOrMoreError(){
         String s1 = "a";
-        RdParser rd = new RdParser();
+        RdExecutor rd = new RdExecutor();
         Executable executable =  rd.oneOrMore("simpleOneOrMoreError_test",
                 rd.parseString(s1)
         );
@@ -158,7 +158,7 @@ public class RdParserTest extends Assert {
     @Test
     public void simplZeroOrMoreOk(){
         String s1 = "a";
-        RdParser rd = new RdParser();
+        RdExecutor rd = new RdExecutor();
         Executable executable =  rd.zeroOrMore(
                 "", rd.parseString(s1)
         );
@@ -168,7 +168,7 @@ public class RdParserTest extends Assert {
     @Test
     public void simpleZeroOrMoreEmpty(){
         String s1 = "a";
-        RdParser rd = new RdParser();
+        RdExecutor rd = new RdExecutor();
         Executable executable =  rd.zeroOrMore(
                 "", rd.parseString(s1)
         );
@@ -178,7 +178,7 @@ public class RdParserTest extends Assert {
     @Test
     public void simpleOptionalOk(){
         String s1 = "a";
-        RdParser rd = new RdParser();
+        RdExecutor rd = new RdExecutor();
         Executable executable =  rd.optional(
                 rd.parseString(s1)
         );
@@ -188,7 +188,7 @@ public class RdParserTest extends Assert {
     @Test
     public void simpleOptionalEmpty(){
         String s1 = "a";
-        RdParser rd = new RdParser();
+        RdExecutor rd = new RdExecutor();
         Executable executable =  rd.optional(
                 rd.parseString(s1)
         );

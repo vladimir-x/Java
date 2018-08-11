@@ -5,19 +5,30 @@ import ru.dude.simplepeg.entity.PegNode;
 import ru.dude.simplepeg.entity.ResultType;
 import ru.dude.simplepeg.entity.State;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+/**
+ * For text checking
+ */
 public class RuleProcessor {
 
+    /**
+     * Разобранные правила
+     */
     Map<String, PegNode> rules;
 
+    /**
+     * Первое правило
+     */
     PegNode firstRule;
 
-    RdParser rdParser;
+    RdExecutor rdExecutor;
 
     public RuleProcessor(PegNode grammarTree) {
-        rdParser = new RdParser();
+        rdExecutor = new RdExecutor();
         selectRules(grammarTree);
     }
 
@@ -57,13 +68,78 @@ public class RuleProcessor {
 
     private PegNode executeRule(PegNode rule, State state){
 
-        SpegParser spegParser = new SpegParser(state,rules);
-
-
-
-        Executable exec = spegParser.applyRule(rule);
+        Executable exec = applyRule(rule);
         PegNode res = exec.exec(state);
         return res;
+    }
+
+
+    public Executable applyRule(final PegNode rule) {
+        return new Executable() {
+
+            @Override
+            public PegNode exec(State state) {
+
+                Executable[] childExecs = null;
+
+                if (rule.getChildrens() != null) {
+                    List<Executable> childExecsList = new ArrayList<>();
+                    for (PegNode childNode : rule.getChildrens()) {
+                        childExecsList.add(applyRule(childNode));
+                    }
+                    childExecs = childExecsList.toArray(new Executable[0]);
+                }
+
+                String fullStr = rule.getMatch().toString();
+                String unQuotedStr = fullStr;
+                if (fullStr.length() > 1) {
+                    unQuotedStr = fullStr.substring(1, fullStr.length() - 1);
+                }
+
+                PegNode emptyRes = new PegNode();
+                emptyRes.setResultType(ResultType.EMPTY);
+
+                if (rule.getExecName() == null) {
+                    return emptyRes;
+                }
+
+                switch (rule.getExecName()) {
+                    case "string":
+                        return rdExecutor.parseString(unQuotedStr).exec(state);
+                    case "regex":
+                        return rdExecutor.parseRegexp(fullStr).exec(state);
+                    case "sequence":
+                        return rdExecutor.sequence("applySequence", childExecs).exec(state);
+                    case "ordered_choise":
+                        return rdExecutor.orderedChoice("applyOrderedChoise", childExecs).exec(state);
+                    case "one_or_more":
+                        return  rdExecutor.oneOrMore("applyOneOrMore", childExecs[0]).exec(state);
+                    case "zero_or_more":
+                        return rdExecutor.zeroOrMore("applyZeroOrMore", childExecs[0]).exec(state);
+                    case "not":
+                        return rdExecutor.not(childExecs[1]).exec(state);
+                    //case "and": //return rdExecutor.(childExecs[1]).exec(state);
+                    case "optional":
+                        return rdExecutor.optional(childExecs[0]).exec(state);
+                    case "rule_expression":
+                    default:
+                        if (rules.containsKey(fullStr)) {
+                            return applyRule(rules.get(fullStr)).exec(state);
+                        }
+
+
+                        if (childExecs.length == 0) {
+                            return emptyRes;
+                        }
+
+                        if (childExecs.length == 1) {
+                            return childExecs[0].exec(state);
+                        }
+
+                        return rdExecutor.sequence("deafultSequence", childExecs).exec(state);
+                }
+            }
+        };
     }
 
 

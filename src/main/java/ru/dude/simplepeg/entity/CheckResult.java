@@ -1,5 +1,8 @@
 package ru.dude.simplepeg.entity;
 
+/**
+ * Результат проверки
+ */
 public class CheckResult {
 
     private ResultType resultType;
@@ -31,4 +34,12 @@ public class CheckResult {
         return errorText;
     }
 
+    @Override
+    public String toString() {
+        if (ResultType.OK.equals(resultType)){
+            return ResultType.OK.toString();
+        } else {
+            return resultType +"["+ errorText + ']';
+        }
+    }
 }
