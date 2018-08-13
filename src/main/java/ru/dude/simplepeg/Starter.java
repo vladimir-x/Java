@@ -1,11 +1,10 @@
 package ru.dude.simplepeg;
 
 import ru.dude.simplepeg.entity.PegNode;
-import ru.dude.simplepeg.entity.State;
 
-import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 
 /**
  * Created by dude on 29.10.2017.
@@ -28,11 +27,9 @@ public class Starter {
 
         RuleProcessor rp = new RuleProcessor(SpegParser.createAndExec(grammar));
 
-        String check1 = "https://simplepeg.github.io/";
-
-        System.out.println(rp.check( "https://simplepeg.github.io/"));
-        System.out.println(rp.check( "https://google.com/"));
-        System.out.println(rp.check( "https://abcdssss.....com/"));
+        System.out.println(rp.check("https://simplepeg.github.io/"));
+        System.out.println(rp.check("https://google.com/"));
+        System.out.println(rp.check("https://abcdssss.....com/"));
 
     }
 

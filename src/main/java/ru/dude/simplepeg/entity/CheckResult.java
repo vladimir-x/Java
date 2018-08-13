@@ -8,18 +8,18 @@ public class CheckResult {
     private ResultType resultType;
     private String errorText;
 
-    private CheckResult(){
+    private CheckResult() {
 
     }
 
-    public static CheckResult error(String errorText){
+    public static CheckResult error(String errorText) {
         CheckResult r = new CheckResult();
         r.resultType = ResultType.ERROR;
         r.errorText = errorText;
         return r;
     }
 
-    public static CheckResult ok(){
+    public static CheckResult ok() {
         CheckResult r = new CheckResult();
         r.resultType = ResultType.OK;
         r.errorText = "";
@@ -36,10 +36,10 @@ public class CheckResult {
 
     @Override
     public String toString() {
-        if (ResultType.OK.equals(resultType)){
+        if (ResultType.OK.equals(resultType)) {
             return ResultType.OK.toString();
         } else {
-            return resultType +"["+ errorText + ']';
+            return resultType + "[" + errorText + ']';
         }
     }
 }

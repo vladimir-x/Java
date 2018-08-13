@@ -38,14 +38,14 @@ public class RuleProcessor {
 
         PegNode lines = grammarTree.child("body");
         for (PegNode ch : lines.getChildrens()) {
-            if (ch.getExecName().equals("rule_lines")){
+            if (ch.getExecName().equals("rule_lines")) {
                 PegNode rule = ch.child("rule");
                 String ruleName = rule.child("rule_name").getMatch().toString();
                 PegNode ruleExpression = rule.child("rule_expression");
-                if (firstRule == null){
+                if (firstRule == null) {
                     firstRule = ruleExpression;
                 }
-                rules.put(ruleName,ruleExpression);
+                rules.put(ruleName, ruleExpression);
             }
         }
     }
@@ -59,14 +59,14 @@ public class RuleProcessor {
 
         PegNode resultExec = executeRule(firstRule, textState);
 
-        if (resultExec.getResultType() == ResultType.OK){
+        if (resultExec.getResultType() == ResultType.OK) {
             return CheckResult.ok();
         }
 
         return CheckResult.error(resultExec.getError());
     }
 
-    private PegNode executeRule(PegNode rule, State state){
+    private PegNode executeRule(PegNode rule, State state) {
 
         Executable exec = applyRule(rule);
         PegNode res = exec.exec(state);
@@ -113,7 +113,7 @@ public class RuleProcessor {
                     case "ordered_choise":
                         return rdExecutor.orderedChoice("applyOrderedChoise", childExecs).exec(state);
                     case "one_or_more":
-                        return  rdExecutor.oneOrMore("applyOneOrMore", childExecs[0]).exec(state);
+                        return rdExecutor.oneOrMore("applyOneOrMore", childExecs[0]).exec(state);
                     case "zero_or_more":
                         return rdExecutor.zeroOrMore("applyZeroOrMore", childExecs[0]).exec(state);
                     case "not":
@@ -141,9 +141,6 @@ public class RuleProcessor {
             }
         };
     }
-
-
-
 
 
 }

@@ -279,6 +279,7 @@ public class RdExecutor {
     /**
      * Предикат not.
      * По хорошему, внутри он должен двигать position... оставлю пока так
+     *
      * @param exec
      * @return
      */

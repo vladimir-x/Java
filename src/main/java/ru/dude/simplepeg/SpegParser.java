@@ -1,12 +1,9 @@
 package ru.dude.simplepeg;
 
 import ru.dude.simplepeg.entity.PegNode;
-import ru.dude.simplepeg.entity.ResultType;
 import ru.dude.simplepeg.entity.State;
 
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -52,8 +49,6 @@ public class SpegParser {
      * @return
      */
     public Executable peg() {
-
-        //return  parsingBody();
 
         return rdExecutor.sequence("peg_parser",
                 rdExecutor.zeroOrMore("spaces", spacesBreaks()),
@@ -107,7 +102,6 @@ public class SpegParser {
     /**
      * Parce rule
      * <p>
-     * TODO: (not ready)
      *
      * @return
      */

@@ -1,10 +1,9 @@
 package ru.dude.simplepeg.entity;
 
-import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 
 /**
  * Store and processing input data
@@ -22,30 +21,31 @@ public class State {
      */
     int position;
 
-    private State(){
+    private State() {
         textData = new StringBuilder();
         position = 0;
     }
 
-    public State(InputStream is){
+    public State(InputStream is) {
         textData = new StringBuilder();
         position = 0;
         loadByStream(is);
     }
 
-    public State(String grammar){
+    public State(String grammar) {
         textData = new StringBuilder(grammar);
         position = 0;
     }
 
     /**
      * Load data from input stream
+     *
      * @param is
      */
-    private void loadByStream(InputStream is){
+    private void loadByStream(InputStream is) {
         textData = new StringBuilder();
 
-        try (Reader r = new InputStreamReader(is, "UTF-8")){
+        try (Reader r = new InputStreamReader(is, "UTF-8")) {
             int c = 0;
             while ((c = r.read()) != -1) {
                 textData.append((char) c);
@@ -69,22 +69,23 @@ public class State {
 
     /**
      * increase slide
+     *
      * @param len
      * @return
      */
-    public int appendPosition(int len){
-        position+=len;
+    public int appendPosition(int len) {
+        position += len;
         return position;
     }
 
     public String atPos() {
-        if (position<textData.length()){
-            return textData.charAt(position)+"";
+        if (position < textData.length()) {
+            return textData.charAt(position) + "";
         }
         return null;
     }
 
-    public State copy(){
+    public State copy() {
         State state = new State();
         state.textData = textData;
         state.position = position;

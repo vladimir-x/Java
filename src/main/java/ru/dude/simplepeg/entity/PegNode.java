@@ -5,10 +5,10 @@ import java.util.List;
 
 /**
  * Tree object with result data
- *
+ * <p>
  * Created by dude on 29.10.2017.
  */
-public class PegNode{
+public class PegNode {
 
     private static Integer nextId = 0;
 
@@ -24,7 +24,7 @@ public class PegNode{
     String error;
     private String execName;
 
-    public PegNode(){
+    public PegNode() {
         id = nextId++;
     }
 
@@ -37,43 +37,42 @@ public class PegNode{
         }
 
         if (endPosition == null || endPosition < child.getEndPosition()) {
-            endPosition =child.getEndPosition();
+            endPosition = child.getEndPosition();
         }
     }
 
 
+    public void toJson(StringBuilder sb, int level) {
 
-    public void toJson(StringBuilder sb,int level){
+        addtabs(sb, level).append("{\n");
+        addtabs(sb, level + 1).append("\"id\" :\"").append(id).append("\",\n");
+        addtabs(sb, level + 1).append("\"execName\" :\"").append(execName).append("\",\n");
+        addtabs(sb, level + 1).append("\"type\" :\"").append(type).append("\",\n");
+        addtabs(sb, level + 1).append("\"match\" :\"").append(match).append("\",\n");
+        addtabs(sb, level + 1).append("\"startPosition\" :").append(startPosition).append(",\n");
+        addtabs(sb, level + 1).append("\"endPosition\" :").append(endPosition).append(",\n");
 
-        addtabs(sb,level).append("{\n");
-        addtabs(sb,level+1).append("\"id\" :\"").append(id).append("\",\n");
-        addtabs(sb,level+1).append("\"execName\" :\"").append(execName).append("\",\n");
-        addtabs(sb,level+1).append("\"type\" :\"").append(type).append("\",\n");
-        addtabs(sb,level+1).append("\"match\" :\"").append(match).append("\",\n");
-        addtabs(sb,level+1).append("\"startPosition\" :").append(startPosition).append(",\n");
-        addtabs(sb,level+1).append("\"endPosition\" :").append(endPosition).append(",\n");
-
-        if (childrens.size()>0) {
+        if (childrens.size() > 0) {
             addtabs(sb, level + 1).append("\"childrens\":[\n");
             for (PegNode children : childrens) {
                 children.toJson(sb, level + 2);
             }
             addtabs(sb, level + 1).append("]\n");
         }
-        addtabs(sb,level).append("},\n");
+        addtabs(sb, level).append("},\n");
     }
 
-    private StringBuilder addtabs(StringBuilder sb,int level){
-        for (int i=0;i<level;++i){
+    private StringBuilder addtabs(StringBuilder sb, int level) {
+        for (int i = 0; i < level; ++i) {
             sb.append("\t");
         }
         return sb;
     }
 
-    public PegNode child(String execName){
+    public PegNode child(String execName) {
 
         for (PegNode ch : childrens) {
-            if (ch.getExecName().equals(execName)){
+            if (ch.getExecName().equals(execName)) {
                 return ch;
             }
         }
