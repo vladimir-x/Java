@@ -2,6 +2,8 @@ package ru.dude.simplepeg.entity;
 
 /**
  * PEG operation types
+ *
+ * Типы операций в peg-грамматике. Фиксированный набор.
  * Created by dude on 29.10.2017.
  */
 public enum SpegTypes {

@@ -1,14 +1,12 @@
 package ru.dude.simplepeg;
 
-import ru.dude.simplepeg.entity.CheckResult;
-import ru.dude.simplepeg.entity.PegNode;
-import ru.dude.simplepeg.entity.ResultType;
-import ru.dude.simplepeg.entity.State;
+import ru.dude.simplepeg.entity.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 
 /**
  * For text checking
@@ -103,25 +101,27 @@ public class RuleProcessor {
                     return emptyRes;
                 }
 
-                switch (rule.getExecName()) {
-                    case "string":
+                SpegNames spegName = SpegNames.bySpegName(rule.getExecName());
+
+                switch (spegName) {
+                    case NAME_STRING:
                         return rdExecutor.parseString(unQuotedStr).exec(state);
-                    case "regex":
+                    case NAME_REGEX:
                         return rdExecutor.parseRegexp(fullStr).exec(state);
-                    case "sequence":
+                    case NAME_SEQUENCE:
                         return rdExecutor.sequence("applySequence", childExecs).exec(state);
-                    case "ordered_choise":
-                        return rdExecutor.orderedChoice("applyOrderedChoise", childExecs).exec(state);
-                    case "one_or_more":
+                    case NAME_ORDERED_CHOCE:
+                        return rdExecutor.orderedChoice("applyOrderedChoice", childExecs).exec(state);
+                    case NAME_ONE_OR_MORE:
                         return rdExecutor.oneOrMore("applyOneOrMore", childExecs[0]).exec(state);
-                    case "zero_or_more":
+                    case NAME_ZERO_OR_MORE:
                         return rdExecutor.zeroOrMore("applyZeroOrMore", childExecs[0]).exec(state);
-                    case "not":
+                    case NAME_NOT:
                         return rdExecutor.not(childExecs[1]).exec(state);
-                    //case "and": //return rdExecutor.(childExecs[1]).exec(state);
-                    case "optional":
+                    //case NAME_AND: //return rdExecutor.(childExecs[1]).exec(state);
+                    case NAME_OPTIONAL:
                         return rdExecutor.optional(childExecs[0]).exec(state);
-                    case "rule_expression":
+                    case NAME_RULE_EXPRESSION:
                     default:
                         if (rules.containsKey(fullStr)) {
                             return applyRule(rules.get(fullStr)).exec(state);

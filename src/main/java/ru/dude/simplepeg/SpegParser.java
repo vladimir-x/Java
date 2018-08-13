@@ -1,6 +1,7 @@
 package ru.dude.simplepeg;
 
 import ru.dude.simplepeg.entity.PegNode;
+import ru.dude.simplepeg.entity.SpegNames;
 import ru.dude.simplepeg.entity.State;
 
 import java.io.InputStream;
@@ -170,10 +171,10 @@ public class SpegParser {
     }
 
     private Executable parsingOrderedChoice() {
-        return rdExecutor.sequence("ordered_choise",
+        return rdExecutor.sequence("ordered_choice",
                 parsingSubExpression(),
-                rdExecutor.oneOrMore("ordered_choise_args",
-                        rdExecutor.sequence("ordered_choise_arg",
+                rdExecutor.oneOrMore("ordered_choice_args",
+                        rdExecutor.sequence("ordered_choice_arg",
                                 rdExecutor.zeroOrMore("spaces", spacesBreaks()),
                                 rdExecutor.parseString("/"),
                                 rdExecutor.zeroOrMore("spaces", spacesBreaks()),
@@ -244,20 +245,21 @@ public class SpegParser {
     }
 
     private Executable parseString() {
-        return rdExecutor.sequence("string",
+        return rdExecutor.sequence(SpegNames.NAME_STRING.getSpegName(),
                 rdExecutor.parseString("\""),
-                rdExecutor.oneOrMore("string", rdExecutor.orderedChoice(
-                        "", rdExecutor.parseString("\\\\"),
-                        rdExecutor.parseString("\\\""),
-                        rdExecutor.parseRegexp("[^\"]")
-                )),
+                rdExecutor.oneOrMore(SpegNames.NAME_STRING.getSpegName(),
+                        rdExecutor.orderedChoice(
+                                "", rdExecutor.parseString("\\\\"),
+                                rdExecutor.parseString("\\\""),
+                                rdExecutor.parseRegexp("[^\"]")
+                        )),
                 rdExecutor.parseString("\"")
         );
     }
 
     private Executable parseRegex() {
         return rdExecutor.orderedChoice(
-                "", rdExecutor.sequence("regex",
+                "", rdExecutor.sequence(SpegNames.NAME_REGEX.getSpegName(),
                         rdExecutor.parseString("["),
                         rdExecutor.optional(rdExecutor.parseString("^")),
                         rdExecutor.oneOrMore("regex[]", rdExecutor.orderedChoice(
@@ -273,7 +275,7 @@ public class SpegParser {
 
 
     private Executable parsingNot() {
-        return rdExecutor.sequence("not",
+        return rdExecutor.sequence(SpegNames.NAME_NOT.getSpegName(),
                 rdExecutor.parseString("!"),
                 rdExecutor.orderedChoice(
                         "", parsingGroup(),
@@ -283,7 +285,7 @@ public class SpegParser {
     }
 
     private Executable parsingAnd() {
-        return rdExecutor.sequence("and",
+        return rdExecutor.sequence(SpegNames.NAME_AND.getSpegName(),
                 rdExecutor.parseString("&"),
                 rdExecutor.orderedChoice(
                         "", parsingGroup(),
@@ -293,7 +295,7 @@ public class SpegParser {
     }
 
     private Executable parsingOneOrMore() {
-        return rdExecutor.sequence("one_or_more",
+        return rdExecutor.sequence(SpegNames.NAME_ONE_OR_MORE.getSpegName(),
                 rdExecutor.orderedChoice(
                         "", parsingGroup(),
                         parsingAtomicExpression()
@@ -304,7 +306,7 @@ public class SpegParser {
 
 
     private Executable parsingZeroOrMore() {
-        return rdExecutor.sequence("zero_or_more",
+        return rdExecutor.sequence(SpegNames.NAME_ZERO_OR_MORE.getSpegName(),
                 rdExecutor.orderedChoice(
                         "", parsingGroup(),
                         parsingAtomicExpression()
@@ -314,7 +316,7 @@ public class SpegParser {
     }
 
     private Executable parsingOptional() {
-        return rdExecutor.sequence("optional",
+        return rdExecutor.sequence(SpegNames.NAME_OPTIONAL.getSpegName(),
                 rdExecutor.orderedChoice(
                         "", parsingGroup(),
                         parsingAtomicExpression()
